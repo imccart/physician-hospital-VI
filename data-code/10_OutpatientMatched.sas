@@ -1,0 +1,229 @@
+/* ------------------------------------------------------------ */
+/* TITLE:		 Outpatient Stays matched to physicians/hospitals */
+/* AUTHOR:		 Ian McCarthy									*/
+/* 				 Emory University								*/
+/* DATE CREATED: 9/18/2017										*/
+/* DATE EDITED:  1/28/2020										*/
+/* CODE FILE ORDER: 10 of XX										*/
+/* NOTES:														*/
+/*   BENE_CC  Master beneficiary summary file 					*/
+/*   MCBSxxxx Medicare Current Beneficiary Survey (Year xxxx) 	*/
+/*   MCBSXWLK MCBS Crosswalk 									*/
+/*   RIFSxxxx Out/Inpatient and Carrier claims (Year xxxx)  	*/
+/*   Medpar   Inpatient claims  								*/
+/*   -- File outputs the following tables to IMC969SL:			*/
+/*		OPFinal_2007-2015			   					*/
+/* ------------------------------------------------------------ */
+%LET year_data=2007;
+
+PROC SQL;
+	DROP TABLE WORK.Patients;
+	CREATE TABLE WORK.Patients AS
+	SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_data 
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL;
+QUIT;
+
+PROC SQL;
+	DROP TABLE IMC969SL.OPFinal_&year_data;
+	CREATE TABLE IMC969SL.OPFinal_&year_data AS
+	SELECT a.*
+		FROM IMC969SL.OutpatientStays_&year_data AS a
+		INNER JOIN WORK.Patients AS b
+		ON a.BENE_ID=b.BENE_ID;
+QUIT;
+
+
+%LET year_prior=2007;
+%LET year_data=2008;
+
+PROC SQL;
+	DROP TABLE WORK.Patients;
+	CREATE TABLE WORK.Patients AS
+	SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_data 
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL
+		UNION ALL 
+		SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_prior
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL;
+QUIT;
+
+PROC SQL;
+	DROP TABLE IMC969SL.OPFinal_&year_data;
+	CREATE TABLE IMC969SL.OPFinal_&year_data AS
+	SELECT a.*
+		FROM IMC969SL.OutpatientStays_&year_data AS a
+		INNER JOIN WORK.Patients AS b
+		ON a.BENE_ID=b.BENE_ID;
+QUIT;
+
+%LET year_prior=2008;
+%LET year_data=2009;
+
+PROC SQL;
+	DROP TABLE WORK.Patients;
+	CREATE TABLE WORK.Patients AS
+	SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_data 
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL
+		UNION ALL 
+		SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_prior
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL;
+QUIT;
+
+PROC SQL;
+	DROP TABLE IMC969SL.OPFinal_&year_data;
+	CREATE TABLE IMC969SL.OPFinal_&year_data AS
+	SELECT a.*
+		FROM IMC969SL.OutpatientStays_&year_data AS a
+		INNER JOIN WORK.Patients AS b
+		ON a.BENE_ID=b.BENE_ID;
+QUIT;
+
+
+%LET year_prior=2009;
+%LET year_data=2010;
+
+PROC SQL;
+	DROP TABLE WORK.Patients;
+	CREATE TABLE WORK.Patients AS
+	SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_data 
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL
+		UNION ALL 
+		SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_prior
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL;
+QUIT;
+
+PROC SQL;
+	DROP TABLE IMC969SL.OPFinal_&year_data;
+	CREATE TABLE IMC969SL.OPFinal_&year_data AS
+	SELECT a.*
+		FROM IMC969SL.OutpatientStays_&year_data AS a
+		INNER JOIN WORK.Patients AS b
+		ON a.BENE_ID=b.BENE_ID;
+QUIT;
+
+
+%LET year_prior=2010;
+%LET year_data=2011;
+
+PROC SQL;
+	DROP TABLE WORK.Patients;
+	CREATE TABLE WORK.Patients AS
+	SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_data 
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL
+		UNION ALL 
+		SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_prior
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL;
+QUIT;
+
+PROC SQL;
+	DROP TABLE IMC969SL.OPFinal_&year_data;
+	CREATE TABLE IMC969SL.OPFinal_&year_data AS
+	SELECT a.*
+		FROM IMC969SL.OutpatientStays_&year_data AS a
+		INNER JOIN WORK.Patients AS b
+		ON a.BENE_ID=b.BENE_ID;
+QUIT;
+
+
+
+%LET year_prior=2011;
+%LET year_data=2012;
+
+PROC SQL;
+	DROP TABLE WORK.Patients;
+	CREATE TABLE WORK.Patients AS
+	SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_data 
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL
+		UNION ALL 
+		SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_prior
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL;
+QUIT;
+
+PROC SQL;
+	DROP TABLE IMC969SL.OPFinal_&year_data;
+	CREATE TABLE IMC969SL.OPFinal_&year_data AS
+	SELECT a.*
+		FROM IMC969SL.OutpatientStays_&year_data AS a
+		INNER JOIN WORK.Patients AS b
+		ON a.BENE_ID=b.BENE_ID;
+QUIT;
+
+%LET year_prior=2012;
+%LET year_data=2013;
+
+PROC SQL;
+	DROP TABLE WORK.Patients;
+	CREATE TABLE WORK.Patients AS
+	SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_data 
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL
+		UNION ALL 
+		SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_prior
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL;
+QUIT;
+
+PROC SQL;
+	DROP TABLE IMC969SL.OPFinal_&year_data;
+	CREATE TABLE IMC969SL.OPFinal_&year_data AS
+	SELECT a.*
+		FROM IMC969SL.OutpatientStays_&year_data AS a
+		INNER JOIN WORK.Patients AS b
+		ON a.BENE_ID=b.BENE_ID;
+QUIT;
+
+
+%LET year_prior=2013;
+%LET year_data=2014;
+
+PROC SQL;
+	DROP TABLE WORK.Patients;
+	CREATE TABLE WORK.Patients AS
+	SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_data 
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL
+		UNION ALL 
+		SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_prior
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL;
+QUIT;
+
+PROC SQL;
+	DROP TABLE IMC969SL.OPFinal_&year_data;
+	CREATE TABLE IMC969SL.OPFinal_&year_data AS
+	SELECT a.*
+		FROM IMC969SL.OutpatientStays_&year_data AS a
+		INNER JOIN WORK.Patients AS b
+		ON a.BENE_ID=b.BENE_ID;
+QUIT;
+
+%LET year_prior=2014;
+%LET year_data=2015;
+
+PROC SQL;
+	DROP TABLE WORK.Patients;
+	CREATE TABLE WORK.Patients AS
+	SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_data 
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL
+		UNION ALL 
+		SELECT BENE_ID FROM IMC969SL.INPATIENTSTAYS_&year_prior
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL;
+QUIT;
+
+PROC SQL;
+	DROP TABLE IMC969SL.OPFinal_&year_data;
+	CREATE TABLE IMC969SL.OPFinal_&year_data AS
+	SELECT a.*
+		FROM IMC969SL.OutpatientStays_&year_data AS a
+		INNER JOIN WORK.Patients AS b
+		ON a.BENE_ID=b.BENE_ID;
+QUIT;
+
+
+
+%LET year_data=2015;
+PROC SQL;
+	DROP TABLE WORK.OP_Small;
+	CREATE TABLE WORK.OP_Small AS
+	SELECT *
+		FROM IMC969SL.OutpatientStays_&year_data
+		WHERE ORG_NPI_NUM IS NOT NULL AND OP_PHYSN_NPI IS NOT NULL;
+QUIT;
+
+
+
