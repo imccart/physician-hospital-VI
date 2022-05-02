@@ -1,0 +1,30 @@
+---
+title: "How Efficient is the Market for Physician Referrals"
+---
+
+```{css, echo=FALSE}
+.section h2 {
+    padding-top: 94px;
+    margin-top: -71px;
+}
+
+.title {
+    display: none
+}
+```
+
+
+**Ian McCarthy**  
+Department of Economics • Emory University<br>
+Research Associate • National Bureau of Economic Research<br>
+[ianmccarthyecon.com](https://www.ianmccarthyecon.com) • [\@ianhealthecon](https://twitter.com/ianhealthecon)
+
+
+**Seth Richards-Shubik**  
+Department of Economics • Lehigh University<br>
+Research Associate • National Bureau of Economic Research<br>
+[personal website](https://www.lehigh.edu/~ser315/)
+
+---
+
+Welcome! This is a small site designed to house materials for our project, "How Efficient is the Market for Physician Referrals." Use the top menu to navigate the site, and you can find all of the source code at the GitHub repository, [here](https://github.com/imccart/referrals-and-learning).

@@ -1,0 +1,14 @@
+---
+output: github_document
+---
+
+**Ian McCarthy**  
+Department of Economics • Emory University<br>
+Faculty Research Fellow • National Bureau of Economic Research<br>
+[ianmccarthyecon.com](https://www.ianmccarthyecon.com) • [\@ianhealthecon](https://twitter.com/ianhealthecon)
+
+------------------------------------------------------------------------
+
+## Slides and resources
+
+Access all the supplemental materials, including all presentations of this work, [here](https://physician-hospital-vi.research.ianmccarthyecon.com).

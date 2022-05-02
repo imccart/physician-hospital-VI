@@ -1,0 +1,22 @@
+name: "physician-hospital-vi"
+output_dir: docs
+exclude: ["data"]
+navbar:
+  title: "Referrals and Learning"
+  left:
+    - text: ""
+      icon: fa-home
+      href: index.html
+    - text: "Appendix"
+      href: appendix.html
+    - text: "Presentations"
+      href: present.html
+    - text: "Data"
+      href: data.html
+    - text: "Analysis"
+      href: analysis.html
+output:
+  html_document:
+    theme: flatly
+    include:
+      after_body: html/footer.html

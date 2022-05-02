@@ -1,0 +1,21 @@
+---
+title: "Presentations"
+---
+
+
+### University of North Carolina, Chapel Hill, November 2021
+
+```{r embed-xaringan1, echo=FALSE}
+xaringanExtra::embed_xaringan(url = "presentations/unc-202111.html", ratio = "16:9")
+```
+
+<p><a class="btn btn-info btn-lg" target="_blank" href="presentations/unc-202111.html"><i class="fas fa-external-link-alt"></i> View all slides in new window</a>
+
+
+### Indiana University, Bloomington, February 2022
+
+```{r embed-xaringan2, echo=FALSE}
+xaringanExtra::embed_xaringan(url = "presentations/iu-202202.html", ratio = "16:9")
+```
+
+<p><a class="btn btn-info btn-lg" target="_blank" href="presentations/iu-202202.html"><i class="fas fa-external-link-alt"></i> View all slides in new window</a>
