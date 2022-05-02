@@ -1,5 +1,5 @@
 ---
-title: "How Efficient is the Market for Physician Referrals"
+title: "Owning the Agent: Hospital Influence on Physician Behaviors"
 ---
 
 ```{css, echo=FALSE}
@@ -14,17 +14,23 @@ title: "How Efficient is the Market for Physician Referrals"
 ```
 
 
+**Haizhen Lin**  
+Kelly School of Business • Indiana University<br>
+Research Associate • National Bureau of Economic Research<br>
+[personal website](https://host.kelley.iu.edu/hzlin/)
+
+
 **Ian McCarthy**  
 Department of Economics • Emory University<br>
 Research Associate • National Bureau of Economic Research<br>
 [ianmccarthyecon.com](https://www.ianmccarthyecon.com) • [\@ianhealthecon](https://twitter.com/ianhealthecon)
 
 
-**Seth Richards-Shubik**  
-Department of Economics • Lehigh University<br>
-Research Associate • National Bureau of Economic Research<br>
-[personal website](https://www.lehigh.edu/~ser315/)
+**Michael Richards**  
+Department of Economics • Baylor University<br>
+[personal website](https://michaelrichards.webstarts.com/)
+
 
 ---
 
-Welcome! This is a small site designed to house materials for our project, "How Efficient is the Market for Physician Referrals." Use the top menu to navigate the site, and you can find all of the source code at the GitHub repository, [here](https://github.com/imccart/referrals-and-learning).
+Welcome! This is a small site designed to house materials for our project, "Owning the Agent: Hospital Influence on Physician Behaviors." Use the top menu to navigate the site, and you can find all of the source code at the GitHub repository, [here](https://github.com/imccart/physician-hospital-vi).

@@ -1,0 +1,9 @@
+\beamer@sectionintoc {1}{Background}{2}{0}{1}
+\beamer@sectionintoc {2}{Conceptual Framework}{11}{0}{2}
+\beamer@sectionintoc {3}{Data}{30}{0}{3}
+\beamer@sectionintoc {4}{Preliminary Evidence}{37}{0}{4}
+\beamer@sectionintoc {5}{Estimation of Match Values}{40}{0}{5}
+\beamer@sectionintoc {6}{Estimation of Hospital Influence}{50}{0}{6}
+\beamer@sectionintoc {7}{Heterogeneities in Effects}{82}{0}{7}
+\beamer@sectionintoc {8}{Treatment Intensity vs Reallocation}{86}{0}{8}
+\beamer@sectionintoc {9}{Allocation of Procedures and Patients}{94}{0}{9}

@@ -1,0 +1,6 @@
+\beamer@sectionintoc {1}{Background}{2}{0}{1}
+\beamer@sectionintoc {2}{Theoretical Framework}{16}{0}{2}
+\beamer@sectionintoc {3}{Data}{35}{0}{3}
+\beamer@sectionintoc {4}{Estimation of Match Values}{42}{0}{4}
+\beamer@sectionintoc {5}{Estimation of Hospital Influence}{53}{0}{5}
+\beamer@sectionintoc {6}{Allocation of Procedures and Patients}{97}{0}{6}

@@ -1,0 +1,8 @@
+\beamer@sectionintoc {1}{Motivation}{2}{0}{1}
+\beamer@sectionintoc {2}{Estimation Strategy}{11}{0}{2}
+\beamer@sectionintoc {3}{Data}{15}{0}{3}
+\beamer@sectionintoc {4}{Vertical Integration and Treatment Intensity}{20}{0}{4}
+\beamer@sectionintoc {5}{Event Studies}{28}{0}{5}
+\beamer@sectionintoc {6}{Treatment Intensity vs Reallocation}{32}{0}{6}
+\beamer@sectionintoc {7}{Heterogeneous Effects}{40}{0}{7}
+\beamer@sectionintoc {8}{Main Takeaways}{44}{0}{8}

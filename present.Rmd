@@ -2,20 +2,23 @@
 title: "Presentations"
 ---
 
+We've presented several different versions of this paper over the past few years. As papers and research projects tend to go, the first versions of this paper look very different than the current version. That's especially true for this project, where our outcomes have changed over time to incorporate a much broader/larger-scale measure of physician behavior and health care utilization. Links to individual presentations are below:
 
-### University of North Carolina, Chapel Hill, November 2021
+**2018**
 
-```{r embed-xaringan1, echo=FALSE}
-xaringanExtra::embed_xaringan(url = "presentations/unc-202111.html", ratio = "16:9")
-```
+- [Emory, Economics Lunch and Learn](presentations/emory-lunchandlearn-2018/McCarthy Physician VI Slides.pdf)
+- [Emory, Rollins School of Public Health](presentations/emory-rollins-2018/McCarthy Physician VI Slides.pdf)
+- [John's Hopkins University](presentations/jhu-2018/JHU_Slides_169.pdf)
+- [George Washington University](presentations/gwu-2018/McCarthy Physician VI Slides.pdf)
+- [University of Nevada, Las Vegas](presentations/unlv-2018/McCarthy Physician VI Slides.pdf)
 
-<p><a class="btn btn-info btn-lg" target="_blank" href="presentations/unc-202111.html"><i class="fas fa-external-link-alt"></i> View all slides in new window</a>
+**2019**
 
+- [Indiana University/Purdue University](presentations/iupui-2019/McCarthy Physician VI Slides.pdf)
+- [Indiana University](presentations/iu-2019/McCarthy Physician VI Slides.pdf)
+- [West Virginia University](presentations/wvu-2019/McCarthy Physician VI Slides.pdf)
+- [Southeastern Health Economics Study Group](presentations/shesg-2019/McCarthy Physician VI Slides.pdf)
 
-### Indiana University, Bloomington, February 2022
+**2020**
 
-```{r embed-xaringan2, echo=FALSE}
-xaringanExtra::embed_xaringan(url = "presentations/iu-202202.html", ratio = "16:9")
-```
-
-<p><a class="btn btn-info btn-lg" target="_blank" href="presentations/iu-202202.html"><i class="fas fa-external-link-alt"></i> View all slides in new window</a>
+- [American Economic Association](presentations/aea-2020/McCarthy Physician VI Slides.pdf)

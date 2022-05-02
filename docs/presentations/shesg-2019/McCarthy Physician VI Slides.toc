@@ -1,0 +1,10 @@
+\beamer@sectionintoc {1}{Motivation}{2}{0}{1}
+\beamer@sectionintoc {2}{Estimation Strategy}{12}{0}{2}
+\beamer@sectionintoc {3}{Data}{23}{0}{3}
+\beamer@sectionintoc {4}{Preliminary Evidence}{29}{0}{4}
+\beamer@sectionintoc {5}{Vertical Integration and Match Values}{32}{0}{5}
+\beamer@sectionintoc {6}{Event Studies}{41}{0}{6}
+\beamer@sectionintoc {7}{Triple Difference}{45}{0}{7}
+\beamer@sectionintoc {8}{Heterogeneous Effects}{51}{0}{8}
+\beamer@sectionintoc {9}{Treatment Intensity vs Reallocation}{55}{0}{9}
+\beamer@sectionintoc {10}{Main Takeaways}{64}{0}{10}
