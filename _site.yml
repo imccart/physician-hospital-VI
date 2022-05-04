@@ -7,14 +7,14 @@ navbar:
     - text: ""
       icon: fa-home
       href: index.html
-    - text: "Appendix"
-      href: appendix.html
-    - text: "Presentations"
-      href: present.html
     - text: "Data"
       href: data.html
     - text: "Analysis"
       href: analysis.html
+    - text: "Presentations"
+      href: present.html
+    - text: "Appendix"
+      href: appendix.html
 output:
   html_document:
     theme: flatly
