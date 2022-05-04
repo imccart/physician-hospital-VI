@@ -239,7 +239,7 @@ $(document).ready(function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">Referrals and Learning</a>
+      <a class="navbar-brand" href="index.html">Physician and Hospital VI</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -279,7 +279,43 @@ $(document).ready(function () {
 </div>
 
 
-<p>Stay tuned for supplemental material regarding our dataset construction…</p>
+<p>The data for our paper comes from several sources, the first three of which are proprietary:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Medicare claims data.</strong> These data are proprietary but available to researchers through the proper channels and fees. For this project, we have access to all inpatient, outpatient, and professional services claims for a 20% random sample of Medicare beneficiaries. We access the data through the CMS “Virtual Research Data Center”. Info on gaining access to the VRDC can be found <a href="https://www.resdac.org/cms-virtual-research-data-center-vrdc">here</a>.</p></li>
+<li><p><strong>SK&amp;A data.</strong> These data are propriety and available directly from SK&amp;A for a fee. The data include information on physician practices. Particularly relevant for our purposes is information on which (if any) hospital system owns a given physician practice.</p></li>
+<li><p><strong>American Hospital Association survey data.</strong> These data are proprietary and available from the AHA for a fee. The data include information on hospital characteristics such number of employees and system membership.</p></li>
+<li><p><strong>Provider of Services files.</strong> These are publicly available data that provide additional information on hospitals. Overall, the POS files contain much less hospital information than the AHA data, but there is some information here that is not available from the AHA surveys (either the variable isn’t collected at all or just missing in some years). Adam Sacarny maintains a GitHub repo to help get started with these data, which can be accessed <a href="https://github.com/asacarny/provider-of-services">here</a>.</p></li>
+<li><p><strong>Healthcare Cost Report Information System.</strong> We use HCRIS data to collect information on hospitals, such as number of total discharges and measures of the counts of different employees. We maintain a separate GitHub repository for those interested in working with the HCRIS data, which can be accessed <a href="https://github.com/imccart/HCRIS">here</a>.</p></li>
+<li><p><strong>American Community Survey.</strong> These are publicly available data that we use to capture county-level demographic information.</p></li>
+</ol>
+<p><br></p>
+<div id="initial-claims-data" class="section level2">
+<h2>Initial Claims Data</h2>
+<p>Our central dataset is the Medicare claims data. We access these data through the VRDC and are subsequently limited to the software programs available in that environment (namely, SAS and Stata). Below is a list and brief description of the SAS code files used to create our final claims dataset. Note that a few of the files are no longer relevant for our analysis but were used at some point in earlier versions of the paper. We provide all code files for completeness, just in case someone is accessing this repo with a previous iteration of the paper in mind.</p>
+<ol style="list-style-type: decimal">
+<li><p><a href="data-code/1_InpatientStays.SAS">Inpatient Stays</a>. This code file creates a table of all inpatient stays in a given year, excluding hospital transfers and admissions initiated in the ED. The goal is to focus only on “planned” admissions or elective surgeries.</p></li>
+<li><p><a href="data-code/2_PhysicianData.SAS">Physician Data</a>. This code file creates a table of unique physicians each year. Since our analysis focuses on episodes initiated by a planned and elective inpatient stay, we restrict this set of physicians to those observed as the operating physician in the inpatient stay files. In earlier years, we do not always observe physician NPIs. We find that information in three steps:</p></li>
+<li><p>look within inpatient claims (for the same year) to find physician NPI and UPIN matches; 2. match NPIs from UPIN_NPI NBER crosswalk files; and 3. match to first observed NPI in the NPPES files (for which historical versions are not available until 2010). Physician zip codes, tax ids, and specialties are taken from the carrier claims files when available, and otherwise from the NPPES files. Although the analysis relies more on the SK&amp;A data for physician practice characteristics.</p></li>
+<li><p><a href="data-code/3_HospitalData.SAS">Hospital Data</a>. This code file creates a table of unique hospitals each year. In earlier years, we again do not always observe hospital NPIs. We find that information in three steps:</p></li>
+<li><p>look within the inpatient claims (for the same year) to find NPI and Provider Number matches; 2. match NPIs from the PRVDR_NPI NBER crosswalk files; and 3. match to observed NPI in the NPPES files. Hospital zip codes are taken from the POS files in earlier years where NPPES historical data are not available.</p></li>
+<li><p><a href="data-code/4_BeneData.SAS">Beneficiary Data</a>. Creates table of basic beneficiary demographics.</p></li>
+<li><p><a href="data-code/5_PhysicianChoiceSet.SAS">Physician Admitting Priviledges</a>. This code file creates a table of unique physicians and the set of hospitals to which the physician is observed to have operated in that year, along with other variables describing the physician’s practice, specialty, and location, and similarly the hospital’s location and aggregate utilization. We ultimately combine this across all years to form the set of all hospitals in which a physician is observed to operate over our panel. The resulting data are used to construct our instrument.</p></li>
+<li><p><a href="data-code/6_PatientChoiceSet.SAS">Patient Choice Set for Hospitals</a>. In prior versions of the paper, we constructed an instrument based on the differential distance of the patient to physician practices and hospitals, and we used that information as part of a patient-level discrete choice model. The most recent version of the paper does not use this information, but we provide the code for completeness nonetheless.</p></li>
+<li><p><a href="data-code/7_TotalInpatient.SAS">Total Beneficiary Spending</a>. This code file began as an accumulation of all inpatient stays for each patient. It then expanded to include all inpatient and outpatient stays. The data are used to construct quantiles of patient utilization, which we employ in the empirical analysis as patient-level control variables.</p></li>
+<li><p><a href="data-code/8_OtherIPCare.SAS">Other Inpatient Stays</a>. This file collects all inpatient claims and spending for a patient incurred after the initial inpatient stay that started a given episode. We don’t explicitly measure “episodes” at this point in the code…this is simply the inpatient stays that will ultimately go into the episode calculations.</p></li>
+<li><p><a href="data-code/9_OutpatientStays.SAS">Outpatient Visits</a>. This file collects all the outpatient stays. Similar to the code for other inpatient stays, these data will eventually be used to calculate the outpatient claims relevant for each episode.</p></li>
+<li><p><a href="data-code/10_OutpatientMatched.SAS">Matched Outpatient Visits</a>. This code file began as a specific calculation of outpatient claims assigned to the same physician-hospital pair as the initial inpatient stay. We no longer use these data in the paper.</p></li>
+<li><p><a href="data-code/11_MedparData.SAS">MedPar Data</a>. This code file was originally used to identify charges for specific revenue centers. We no longer use these data in the paper.</p></li>
+<li><p><a href="data-code/12_PatientChoiceSet_Physician.SAS">Patient Choice Sets for Physicians</a>. We experimented with estimating a patient choice model for specialist, and this code file constructs a dataset to do that analysis. This is incomplete and was never used in the paper.</p></li>
+<li><p><a href="data-code/13_Carrier.SAS">Carrier Claims</a>. This code file pulls all of the professional services claims from the carrier files for the patients identified in the original inpatient stays data. These data are used to construct the “professional services” component of the episodes.</p></li>
+<li><p><a href="data-code/14_OutcomeData.SAS">Outcome Data</a>. This code file identifies readmissions, mortality, and complications during or after the initial inpatient stays. We use these data for our quality measures in the supplemental analysis of the paper.</p></li>
+<li><p><a href="data-code/15_ReferralAssignment.SAS">Physician Referrals</a>. This code file identifies the primary care physician associated with each inpatient stay (where available). We used these data as an exploratory analysis of whether vertical integration changes the way in which operating physicians refer patients back to the PCP. This analysis was not ultimately in the final paper.</p></li>
+</ol>
+<p><br></p>
+</div>
+<div id="data-clean-up" class="section level2">
+<h2>Data clean up</h2>
+</div>
 
 <p class="footer" style="margin-top: 4em; font-size: 0.7em;">Copyright &copy; 2021 <a href="https://www.ianmccarthyecon.com/">Ian McCarthy</a>. Licensed under a <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License</a>.</p>
 

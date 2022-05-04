@@ -2,7 +2,7 @@ name: "physician-hospital-vi"
 output_dir: docs
 exclude: ["data"]
 navbar:
-  title: "Referrals and Learning"
+  title: "Physician and Hospital VI"
   left:
     - text: ""
       icon: fa-home
