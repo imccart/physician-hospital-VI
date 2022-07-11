@@ -83,3 +83,12 @@ We export all of the SAS data as csv files and perform all additional data wrang
   f. [VRDC Hospital Data](data-code/PH6_SAS_Hospitals.do) Collect hospital information based on observed claims data. The main purpose of this file is to identify a set of unique hospital NPIs based on inpatient stays from the VRDC claims data.
   
   g. [Pay for Performance Data](data-code/PH7_PFP_Data.do) Collect indicators for whether hospitals participated in certain pay for performance programs. These data come from the MEDPAR files.
+  
+
+2. [Episode Spending](data-code/_Spending_Data.do) Form total spending and indicators for discharge status for each episode.
+
+3. [Episode Quality](data-code/_Quality_Data.do) Construct indicators for readmission, mortality, and complications for each episode.
+
+4. [Referral Data](data-code/_Referral_Data.do) Decomposition of claims within an episode based on whether the billing physician is part of the same practice, some other integrated practice with the same hospital, or some other non-integrated practice. This information is used to measure whether newly acquired physicians are more likely to send patients to other practices owned by the same hospital.
+
+5. [Instrumental Variables](data-code/_Instruments_Data.do) Construct our instrument following Dranove and Ody (2019). This file includes data that was created locally and imported for analysis within the VRDC. See the GitHub repository [here](https://github.com/imccart/PFS_Update_2010) for more details on the creation of these data and replication of Dranove and Ody (2019).  **old version - to be updated**
