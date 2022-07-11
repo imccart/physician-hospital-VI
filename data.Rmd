@@ -6,7 +6,7 @@ The data for our paper comes from several sources, the first three of which are 
 
 1. **Medicare claims data.** These data are proprietary but available to researchers through the proper channels and fees. For this project, we have access to all inpatient, outpatient, and professional services claims for a 20% random sample of Medicare beneficiaries. We access the data through the CMS "Virtual Research Data Center". Info on gaining access to the VRDC can be found [here](https://www.resdac.org/cms-virtual-research-data-center-vrdc).
 
-2. **SK&A data.** These data are propriety and available directly from SK&A for a fee. The data include information on physician practices. Particularly relevant for our purposes is information on which (if any) hospital system owns a given physician practice.
+2. **SK&A data.** These data are propriety and available directly from SK&A (now OneKey) for a fee. The data include information on physician practices. Particularly relevant for our purposes is information on which (if any) hospital or hospital system owns a given physician practice.
 
 3. **American Hospital Association survey data.** These data are proprietary and available from the AHA for a fee. The data include information on hospital characteristics such number of employees and system membership.
 
@@ -20,7 +20,7 @@ The data for our paper comes from several sources, the first three of which are 
 <br>
 
 ## Initial Claims Data
-Our central dataset is the Medicare claims data. We access these data through the VRDC and are subsequently limited to the software programs available in that environment (namely, SAS and Stata). Below is a list and brief description of the SAS code files used to create our final claims dataset. Note that a few of the files are no longer relevant for our analysis but were used at some point in earlier versions of the paper. We provide all code files for completeness, just in case someone is accessing this repo with a previous iteration of the paper in mind.
+Our central dataset is the Medicare claims data. We access these data through the VRDC and are subsequently limited to the software programs available in that environment (namely, SAS and Stata at the time we started this project). Below is a list and brief description of the SAS code files used to create our final claims dataset.
 
 1. [Inpatient Stays](data-code/1_InpatientStays.SAS). This code file creates a table of all inpatient stays in a given year, excluding hospital transfers and admissions initiated in the ED. The goal is to focus only on "planned" admissions or elective surgeries.
 
@@ -39,7 +39,7 @@ Our central dataset is the Medicare claims data. We access these data through th
 
 4. [Beneficiary Data](data-code/4_BeneData.SAS). Creates table of basic beneficiary demographics.
 
-5. [Physician Admitting Priviledges](data-code/5_PhysicianChoiceSet.SAS). This code file creates a table of unique physicians and the set of hospitals to  which the physician is observed to have operated in that year, along with other variables describing the physician's practice, specialty, and location, and similarly the hospital's location and aggregate utilization. We ultimately combine this across all years to form the set of all hospitals in which a physician is observed to operate over our panel. The resulting data are used to construct our instrument.
+5. [Physician Admitting Priviledges](data-code/5_PhysicianChoiceSet.SAS). This code file creates a table of unique physicians and the set of hospitals to  which the physician is observed to have operated in that year, along with other variables describing the physician's practice, specialty, and location, and similarly the hospital's location and aggregate utilization. We ultimately combine this across all years to form the set of all hospitals in which a physician is observed to operate over our panel. In prior versions of the paper, we used this information to construct an instrument based on the predicted probability of practice acquisition. This instrument has since been supplanted with the more direct instrument in the paper -- the predicted revenue increase due to the change in facility fees for an integrated versus non-integrated practice.
 
 6. [Patient Choice Set for Hospitals](data-code/6_PatientChoiceSet.SAS). In prior versions of the paper, we constructed an instrument based on the differential distance of the patient to physician practices and hospitals, and we used that information as part of a patient-level discrete choice model. The most recent version of the paper does not use this information, but we provide the code for completeness nonetheless.
 
@@ -66,3 +66,8 @@ Our central dataset is the Medicare claims data. We access these data through th
 
 ## Data clean up
 
+We export all of the SAS data as csv files and perform all additional data wrangling in Stata as follows:
+
+1. [Physician Hospital Pairs](data-code/PhysicianHospital_Data.do) This file identifies all physician/hospital pairs and incorporates additional information about the physician practices and hospitals. The resulting dataset is at the physician/hospital/year level and includes our main independent variable of interest (i.e., an indicator for whether the physician practice is owned by a given hospital). This file calls the following code files in constructing the physician/hospital pairs: **old version - to be updated**
+
+  a. [Integration Data](PH1_PhysicianHospitalIntegration.do) This file matches physicians to hospitals based on observed claims data and information on ownership status from SK&A. **old version - to be updated**
