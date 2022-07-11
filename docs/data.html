@@ -442,10 +442,37 @@ physician/hospital pairs: <strong>old version - to be
 updated</strong></li>
 </ol>
 <ol style="list-style-type: lower-alpha">
-<li><a href="PH1_PhysicianHospitalIntegration.do">Integration Data</a>
-This file matches physicians to hospitals based on observed claims data
-and information on ownership status from SK&amp;A. <strong>old version -
-to be updated</strong></li>
+<li><p><a
+href="data-code/PH1_PhysicianHospitalIntegration.do">Integration
+Data</a> This file matches physicians to hospitals based on observed
+claims data and information on ownership status from SK&amp;A.
+<strong>old version - to be updated</strong></p></li>
+<li><p><a href="data-code/PH2_HCRIS_Data.do">HCRIS Data</a> Construct
+hospital-level variables from cost reports. These data were created
+locally and then exported into the VRDC for use in this project. Please
+see the HCRIS GitHub repository <a
+href="https://github.com/imccart/HCRIS">here</a> for more details on the
+creation of the hospital-level HCRIS data.</p></li>
+<li><p><a href="data-code/PH3_Inpatient_PPS_Data.do">Inpatient PPS Final
+Rule</a> Collect data on hospital case mix and other variables from the
+inpatient prospective payment system final rule files. These data were
+downloaded locally directly from CMS (publicly available) and then
+uploaded into the VRDC for use in this project.</p></li>
+<li><p><a href="data-code/PH4-AHA_Data.do">AHA Data</a> Collect data on
+hospital characteristics from the AHA annual surveys. These data are
+private but available for purchase from the AHA. The data were uploaded
+directly into the VRDC for use in this project.</p></li>
+<li><p><a href="data-code/PH5_ACS_Data.do">ACS Data</a> Collect
+county-level information (education, income, employment) from the
+American Community Survey. These data were created locally and uploaded
+into the VRDC for use in this project.</p></li>
+<li><p><a href="data-code/PH6_SAS_Hospitals.do">VRDC Hospital Data</a>
+Collect hospital information based on observed claims data. The main
+purpose of this file is to identify a set of unique hospital NPIs based
+on inpatient stays from the VRDC claims data.</p></li>
+<li><p><a href="data-code/PH7_PFP_Data.do">Pay for Performance Data</a>
+Collect indicators for whether hospitals participated in certain pay for
+performance programs. These data come from the MEDPAR files.</p></li>
 </ol>
 </div>
 
