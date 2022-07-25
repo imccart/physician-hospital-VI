@@ -832,6 +832,11 @@ foreach x of varlist claims_carrier claims_inpatient claims_outpatient claims_al
 	graph export "${RESULTS_FINAL}csdid_`x'.png", as(png) replace
 }	
 	
+	
+** balaned-panel using panel version of event study
+bys physician_npi: gen year_count=_N
+keep if year_count==6
+
 foreach x of varlist claims_carrier claims_inpatient claims_outpatient claims_all pay_carrier pay_inpatient pay_outpatient pay_all {
 	replace `x'=0 if `x'<0
 	sum `x', detail
