@@ -10,7 +10,7 @@ log using "S:\IMC969\Logs\Episodes\PhysicianHospitalDataBuild_`logdate'.log", re
 **					physician practice and acquiring hospital.
 **	Author:			Ian McCarthy
 **	Date Created:	11/29/17
-**	Date Updated:	5/15/2020
+**	Date Updated:	5/18/22
 ******************************************************************
 
 ******************************************************************
@@ -40,9 +40,13 @@ do "${CODE_FILES}PH7_PFP_Data.do"
 ******************************************************************
 ** Primary Data
 use "${DATA_FINAL}PhysicianHospital_Integration.dta", clear
+rename zip ska_zip
+rename fips ska_fips
+replace VI=0 if VI_1==0 & VI_2==1
+
 
 ******************************************************************
-** Apply sample criteria
+** Apply initial sample criteria
 
 ** drop outer areas and hawaii/alaska
 replace phy_state=hosp_state if phy_state=="" & hosp_state!=""
@@ -55,65 +59,80 @@ bys physician_npi: egen max_distance=max(distance)
 drop if max_distance>=120
 drop max_distance
 
-******************************************************************
-** Additional Variables
+** drop physicians that are in more than one practice (with sufficient patients in both)
+replace tin1_unq_benes=0 if tin1_unq_benes==.
+replace tin2_unq_benes=0 if tin2_unq_benes==.
+gen tot_unique_benes=tin1_unq_benes + tin2_unq_benes
+gen tin1_rel=tin1_unq_benes/tot_unique_benes
+drop if tin2!=.
 
-** "ever" VI dummy
-bys physician_npi: egen ever_VI=max(VI1)
-replace ever_VI=0 if ever_VI==.
-
-** Always/never purchased dummies
-bys physician_npi: egen min_VI=min(VI1)
-gen always_VI=(min_VI==1)
-bys physician_npi: egen max_VI=max(VI1)
-gen never_VI=(max_VI==0)
-drop min_VI max_VI
-
-** Clean missing VI
-replace VI1=0 if VI1==. & never_VI==1
-replace VI1=1 if VI1==. & always_VI==1
-
-sort physician_npi Year
-forvalues y=2008/2015 {
-	gen vi_`y'=VI1 if Year==`y'
-	by physician_npi: egen mean_vi`y'=mean(vi_`y')
-	drop vi_`y'
-}
-
-forvalues y=2009/2015 {
-	replace VI1=mean_vi`y' if Year==2008 & VI1==.
-}
-forvalues y=2008/2015 {
-	replace VI1=mean_vi`y' if Year==2009 & VI1==.
-    replace VI1=mean_vi`y' if Year==2010 & VI1==.	
-	replace VI1=mean_vi`y' if Year==2011 & VI1==.	
-	replace VI1=mean_vi`y' if Year==2012 & VI1==.
-	replace VI1=mean_vi`y' if Year==2013 & VI1==.
-	replace VI1=mean_vi`y' if Year==2014 & VI1==.
-}
-
-forvalues y=2014(-1)2008 {
-	replace VI1=mean_vi`y' if Year==2015 & VI1==.
-}
-		
-** drop if all years of VI data are missing (physician isn't in SK&A data)
-gen byte missing=mi(VI1)
-bys physician_npi: egen min_missing=min(missing)
-**tab min_missing SKA_Merge
+** drop if all years of VI data are missing (physician's practice is never in SK&A data)
+gen byte missing=mi(VI_any)
+bys tin1: egen min_missing=min(missing)
 drop if min_missing==1
 drop min_missing missing
+
+
+******************************************************************
+** Clean VI measure
+
+** assign VI based on "any VI" and exclusive affiliation in claims
+bys physician_npi Year: gen all_hospitals=_N
+bys physician_npi Year: egen max_vi=max(VI_any)
+replace VI=1 if all_hospitals==1 & max_vi==1 & VI_any==1
+drop max_vi
+
+
+** create final pairwise VI indicator
+gen PH_VI=VI
+
+** fill in PH_VI for same physician npi based on gaps
+preserve
+keep physician_npi hospital_npi Year PH_VI VI_any
+bys physician_npi hospital_npi Year: gen obs=_n
+bys physician_npi hospital_npi Year: egen max_ph_vi=max(PH_VI)
+bys physician_npi hospital_npi Year: egen min_ph_vi=min(PH_VI)
+keep if obs==1
+drop obs min_ph_vi
+egen phy_hospital=group(physician_npi hospital_npi)
+xtset phy_hospital Year
+sort phy_hospital Year
+by phy_hospital: replace PH_VI=1 if L.PH_VI==1 & F.PH_VI==1 & (PH_VI==0 | PH_VI==.)
+by phy_hospital: replace PH_VI=1 if L.PH_VI==1 & (PH_VI==. | PH_VI==0)
+by phy_hospital: replace PH_VI=1 if L.PH_VI==1 & Year==2015 & VI_any==1
+
+keep physician_npi hospital_npi Year PH_VI
+rename PH_VI PH_VI_phy_fill
+save phy_vi_fill, replace
+restore
+
+merge m:1 physician_npi hospital_npi Year using phy_vi_fill, keep(master match) nogenerate
+replace PH_VI=1 if PH_VI_phy_fill==1 & (PH_VI==0 | PH_VI==.)
+
+
+** drop remaining physicians with VI from SKA but no hospital match
+bys physician_npi Year: egen max_phvi=max(PH_VI)
+gen no_vi_match=(max_phvi==0 & VI_any==1)
+bys physician_npi: egen any_vi_miss=max(no_vi_match)
+drop if any_vi_miss==1
+drop max_phvi any_vi_miss no_vi_match
+
+
+** always/never purchased dummies
+bys physician_npi: egen VI_min=min(PH_VI)
+gen VI_always=(VI_min==1)
+bys physician_npi: egen VI_max=max(PH_VI)
+gen VI_never=(VI_max==0)
+drop VI_min VI_max
+
 
 ******************************************************************
 ** Merge Additional Data
 rename hospital_npi NPINUM
-rename SKA_System_Code SKA_System_Code_Phy
 merge m:1 NPINUM Year using "${DATA_FINAL}AllHospitals.dta", generate(MCRNUM_Merge) keep(master match) keepusing(MCRNUM)
 merge m:1 MCRNUM Year using "${DATA_FINAL}HCRIS_Hospital_Level.dta", generate(HCRIS_Merge) keep(master match)
 merge m:1 MCRNUM Year using "${DATA_FINAL}Hospital_PPS.dta", generate(PPS_Merge) keep(master match)
 merge m:1 MCRNUM Year using "${DATA_FINAL}AHA_Data.dta", generate(AHA_Merge) keep(master match)
-merge m:1 NPINUM physician_npi Year using "${DATA_FINAL}PH_Distance.dta", generate(PH_Distance_Match) keep(master match)
-merge m:1 MCRNUM Year using "S:\IMC969\Stata Uploaded Data\SKA_HospitalLevel_v2.dta", generate(SKA_Hospital_Merge) keep(master match)
-rename SKA_System_Code SKA_System_Code_Hosp
 
 gen byte nonmiss=!mi(fips)
 sort MCRNUM fips nonmiss
@@ -121,7 +140,7 @@ bys MCRNUM (nonmiss): replace fips=fips[_N] if nonmiss==0
 drop nonmiss
 merge m:1 fips Year using "${DATA_FINAL}ACS_Data.dta", generate(ACS_Merge) keep(master match)
 
-drop mean_vi* rpt_rec_num street city state county zip fileid filetype stusab chariter sequence logrecno ///
+drop rpt_rec_num street city state county zip fileid filetype stusab chariter sequence logrecno ///
 	TotalPop_uw TotalHouse_uw sumlevel name
 	
 ** Clean bed size variable
@@ -131,51 +150,6 @@ replace HBeds=beds/100 if HBeds==.
 drop Beds beds BDTOT
 rename HBeds Beds
 
-	
-******************************************************************
-** Identify Hospital/Physician VI Match
-******************************************************************
-** Match by observed MCRNUM from hospital name / system name match
-gen PH_VI=0
-forvalues i=1/127 {
-	replace PH_VI=1 if MCRNUM==MCRNUM`i' & MCRNUM!=.
-}
-
-** Match at system level using AHA system ID
-gen SYS_VI=0
-bys physician_npi SYSID Year: egen max_vi=max(VI1)
-replace max_vi=. if SYSID==.
-replace SYS_VI=1 if max_vi==1
-replace PH_VI=1 if SYS_VI==1
-drop max_vi
-
-** Set PH_VI to 1 if physician is not observed to have operated in another hospital
-** in the same year
-bys physician_npi Year: gen all_hospitals=_N
-bys physician_npi Year: egen max_vi=max(VI1)
-replace PH_VI=1 if all_hospitals==1 & max_vi==1
-drop max_vi
-
-** count physicians without a match
-bys physician_npi Year: gen obs=_n
-bys physician_npi Year: egen max_phvi=max(PH_VI)
-count if VI1==1 & max_phvi==0 & obs==1
-count if VI1==1 & obs==1
-gen PH_Match1=((max_phvi==1 & VI1==1) | VI1==0)
-drop max_phvi
-
-** Match by primary location of operations
-bys physician_npi Year: egen max_patients=max(phyop_patients)
-bys physician_npi Year: egen max_phvi=max(PH_VI)
-replace PH_VI=1 if VI1==1 & max_phvi==0 & max_patients==phyop_patients
-drop max_phvi
-
-** Drop physicians without a match
-bys physician_npi Year: egen max_phvi=max(PH_VI)
-gen no_vi_match=(max_phvi==0 & VI1==1)
-bys physician_npi: egen any_vi_miss=max(no_vi_match)
-drop if any_vi_miss==1
-drop max_phvi any_vi_miss no_vi_match
 
 ** Generate new hospital ID (system or npi based)
 gen System_Group=SYSID
@@ -183,6 +157,10 @@ replace System_Group=NPINUM if System_Group==.
 egen ID_System=group(System_Group)
 drop System_Group
 
+
+******************************************************************
+** Save final dataset
 save "${DATA_FINAL}PhysicianHospital_Data.dta", replace
 log close
+
 

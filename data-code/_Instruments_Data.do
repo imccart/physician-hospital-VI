@@ -10,14 +10,14 @@ log using "S:\IMC969\Logs\Episodes\Instruments_`logdate'.log", replace
 **					of the instrument
 **	Author:			Ian McCarthy
 **	Date Created:	4/26/18
-**	Date Updated:	5/20/2020
+**	Date Updated:	6/7/22
 ******************************************************************
 
 ******************************************************************
 ** Preliminaries
 set more off
-set scheme uncluttered
 cd "S:\IMC969\Temp and ado files\"
+set scheme uncluttered
 global DATA_SAS "S:\IMC969\SAS Data v2\"
 global DATA_HCRIS "S:\IMC969\Stata Uploaded Data\Hospital Cost Reports\"
 global DATA_AHA "S:\IMC969\Stata Uploaded Data\AHA Data\"
@@ -25,12 +25,8 @@ global DATA_ACS "S:\IMC969\Stata Uploaded Data\ACS Data\"
 global DATA_PFS "S:\IMC969\Stata Uploaded Data\"
 global DATA_FINAL "S:\IMC969\Final Data\Physician Agency Episodes\"
 global CODE_FILES "S:\IMC969\Stata Code Files\Physician Agency Episodes\"
+global RESULTS_FINAL "S:\IMC969\Results\Physician Agency Episodes\202203\"
 
-/*
-******************************************************************
-** Build Physician Choice Dataset
-do "${CODE_FILES}IV1_ChoiceData.do"
-*/
 
 ******************************************************************
 /* Collect physician quantity data per hcpcs */
@@ -72,29 +68,45 @@ keep physician_npi hcpcs carrier_claims op_claims carrier_share op_share
 save temp_quant_data, replace
 
 
+** Collect pre-integration practice data
+use "${DATA_FINAL}PhysicianHospital_Data.dta", clear
+bys physician_npi PH_VI: egen min_VI_year=min(Year) if PH_VI==1
+bys physician_npi: egen first_year=min(min_VI_year) if min_VI_year!=.
+keep physician_npi indy_prac avg_exper avg_female multi surg prac_size adult_pcp first_year Year
+bys physician_npi Year: gen obs=_n
+drop if obs>1
+drop obs
+drop if Year>=first_year & first_year!=.
+gen merge_year=Year
 
-******************************************************************
-** Run Individual do Files
-
-forvalues y=2008/2015 {
-	global year=`y'
-	do "${CODE_FILES}IV2_PH_Facility.do"
+local step=0
+foreach x of varlist indy_prac avg_exper avg_female multi surg prac_size adult_pcp {
+	local step=`step'+1
+	bys physician_npi: egen mean_`step'=mean(`x')
+	replace `x'=mean_`step' if `x'==.
+	drop mean_`step'
 }
-
-estout vi1_2008 vi1_2009 vi1_2010 vi1_2011 vi1_2012 vi1_2013 vi1_2014 vi1_2015, style(tex) cells(b(star fmt(%10.3f)) se(par)) stats(N r2) ///
-	starlevels(* 0.10 ** 0.05 *** 0.01)
-estout vi1_mfx_2008 vi1_mfx_2009 vi1_mfx_2010 vi1_mfx_2011 vi1_mfx_2012 vi1_mfx_2013 vi1_mfx_2014 vi1_mfx_2015, ///
-	style(tex) cells(b(star fmt(%10.3f)) se(par)) stats(N r2) starlevels(* 0.10 ** 0.05 *** 0.01)	
-	
-	
-******************************************************************
-** Combine years
-use "${DATA_FINAL}Predicted_VI_PFS_2008.dta", clear
-forvalues t=2009/2015 {
-	append using "${DATA_FINAL}Predicted_VI_PFS_`t'.dta"
+foreach x of varlist indy_prac avg_exper avg_female multi surg prac_size adult_pcp {
+	rename `x' `x'_previ
 }
-sort physician_npi NPINUM Year	
-save "${DATA_FINAL}PredictedVI_PFS.dta", replace
+drop first_year Year
+save "${DATA_FINAL}Physician_PreVI.dta", replace
+
+
+** Collect pre-integration shares to each hospital
+use "${DATA_FINAL}PhysicianHospital_Data.dta", clear
+gen phy_share=phyop_claims/total_phyop_claims
+bys physician_npi NPINUM PH_VI: egen min_VI_year=min(Year) if PH_VI==1
+bys physician_npi NPINUM: egen first_year=min(min_VI_year) if min_VI_year!=.
+keep physician_npi NPINUM first_year Year phy_share
+bys physician_npi NPINUM Year: gen obs=_n
+drop if obs>1
+drop obs
+drop if Year>=first_year & first_year!=.
+gen merge_year=Year
+
+drop first_year Year
+save temp_phy_shares, replace
 
 
 ******************************************************************
@@ -107,18 +119,47 @@ forvalues t=2009/2015 {
 }
 save "${DATA_FINAL}PFS_Revenue.dta", replace
 
+
+******************************************************************
+** Total differential payment at practice level
+use "${DATA_FINAL}PhysicianHospital_Data.dta", clear
+
+preserve
+keep if Year==2009
+keep physician_npi tin1 
+keep if tin1!=.
+bys physician_npi: gen obs=_n
+keep if obs==1
+drop obs
+rename tin1 tin_base
+save temp_phy_tin, replace
+restore
+
+merge m:1 physician_npi Year using "${DATA_FINAL}PFS_Revenue.dta", nogenerate keep(master match)
+merge m:1 physician_npi using temp_phy_tin, nogenerate keep(master match)
+keep physician_npi NPINUM Year tin_base totchange_rel_2010
+bys physician_npi Year: gen phy_obs=_n
+gen revchange=totchange_rel_2010 if phy_obs==1
+replace revchange=0 if phy_obs>1
+bys tin_base Year: egen total_revchange=total(revchange) if tin_base!=.
+replace total_revchange=totchange_rel_2010 if tin_base==.
+keep if phy_obs==1
+keep physician_npi Year total_revchange tin_base
+save "${DATA_FINAL}Total_PFS_Revenue.dta", replace
+
 log close
 
 
 ******************************************************************
 ** Assessment of instrument
 use "${DATA_FINAL}PhysicianHospital_Data.dta", clear
+drop VI
 replace PH_VI=0 if PH_VI==.
 bys physician_npi Year: egen VI=max(PH_VI)
 bys physician_npi Year: gen u_obs=_n
 keep if u_obs==1
 
-keep SKA_Practice_ID physician_npi indy_prac ehr avg_exper avg_female adult_pcp multi surg Year VI
+keep SKA_Practice_ID physician_npi indy_prac avg_exper avg_female multi surg Year VI tin1 phy_zip
 save temp_phy_vi, replace
 
 use "${DATA_FINAL}PFS_Revenue.dta", clear
@@ -144,22 +185,35 @@ gen Year2013=(Year==2013)
 gen Year2014=(Year==2014)
 gen Year2015=(Year==2015)
 reg VI normchange2007_* normchange2010_* rev_change_rel_2007 rev_change_rel_2010 i.Year, cluster(physician_npi)
+predict pred_ever_vi
 est store ev_coeff
+
 coefplot ev_coeff, keep(normchange2010_2008 normchange2010_2009 normchange2010_2010 normchange2010_2011 normchange2010_2012 normchange2010_2013 normchange2010_2014 normchange2010_2015) vert ytitle("Percentage Point Increase in" "Probability of Integration") xtitle("Year") ///
-	coeflabels(normchange2010_2008="2008" normchange2010_2009="2009" normchange2010_2010="2010" normchange2010_2011="2011" normchange2010_2012="2012" normchange2010_2013="2013" normchange2010_2014="2015" normchange2010_2015="2015") yline(0, lwidth(vthin) lcolor(gray)) rescale(3300) ylabel(-1(1)8)
-graph save "${RESULTS_FINAL}IV_Estimates", replace
-graph export "${RESULTS_FINAL}IV_Estimates.png", as(png) replace	
+	coeflabels(normchange2010_2008="2008" normchange2010_2009="2009" normchange2010_2010="2010" normchange2010_2011="2011" normchange2010_2012="2012" normchange2010_2013="2013" normchange2010_2014="2015" normchange2010_2015="2015") yline(0, lwidth(vthin) lcolor(gray)) rescale(3300) ylabel(-8(2)8)
+graph save "${RESULTS_FINAL}f4_iv_estimates", replace
+graph export "${RESULTS_FINAL}f4_iv_estimates.png", as(png) replace	
+
+keep physician_npi pred_ever_vi Year
+sort physician_npi
+save "${DATA_FINAL}Predicted_EverVI.dta", replace
 
 
-preserve
-bys physician_npi: egen ever_vi=max(VI)
-collapse (mean) revchange=totchange_rel_2010 [aweight=tot_carrier], by(Year ever_vi)
+
+use "${DATA_FINAL}PFS_Revenue.dta", clear
+merge 1:1 physician_npi Year using temp_phy_vi, keep(match) nogenerate
+drop if tin1==. | phy_zip==.
+bys tin1 : egen ever_vi=max(VI)
+bys tin1 phy_zip Year: egen practice_revchange=total(totchange_rel_2010)
+bys tin1 phy_zip Year: egen practice_carrier=total(tot_carrier)
+bys tin1 phy_zip Year: gen obs=_n
+keep if obs==1
+collapse (mean) revchange=practice_revchange [aweight=tot_carrier], by(Year ever_vi)
 graph twoway (connected revchange Year if ever_vi==1, color(black)) (connected revchange Year if ever_vi==0, color(black) lpattern(dash)), ///
-	ytitle("Mean Relative Revenue Increase") xtitle("Year") legend(off) xlabel(2008(1)2015) ylabel(0(10)60) ///
-	text(40 2012.5 "Non-Integrated", place(e)) text(54 2013 "Integrated", place(e))
-graph save "${RESULTS_FINAL}Raw_IV_Graph", replace
-graph export "${RESULTS_FINAL}Raw_IV_Graph.png", as(png) replace		
-restore
+	ytitle("Mean Relative Revenue Increase") xtitle("Year") legend(off) xlabel(2008(1)2015) ylabel(0(25)150) ///
+	text(55 2012.5 "Non-Integrated", place(e)) text(127 2013 "Integrated", place(e))
+graph save "${RESULTS_FINAL}f3_raw_iv_graph", replace
+graph export "${RESULTS_FINAL}f3_raw_iv_graph.png", as(png) replace		
+
 
 
 use "${DATA_FINAL}PhysicianHospital_Data.dta", clear
@@ -174,7 +228,8 @@ local novi_2008=r(mean)
 replace pred_vi1=pred_vi1-`vi_2008' if ever_vi==1
 replace pred_vi1=pred_vi1-`novi_2008' if ever_vi==0
 graph twoway (connected pred_vi1 Year if ever_vi==1, color(black)) (connected pred_vi1 Year if ever_vi==0, color(black) lpattern(dash)), ///
-	ytitle("Differential Predicted Probability of Integration") xtitle("Year") legend(off) xlabel(2008(1)2015) ///
-	text(0.04 2011.5 "Non-Integrated", place(e)) text(.12 2012.5 "Integrated", place(e))
-graph save "${RESULTS_FINAL}Logit_IV_Graph", replace
-graph export "${RESULTS_FINAL}Logit_IV_Graph.png", as(png) replace		
+	ytitle("Differential Predicted Probability of Integration") xtitle("Year") legend(off) xlabel(2009(1)2015) ///
+	text(0.037 2011.4 "Non-Integrated", place(e)) text(.155 2012.5 "Integrated", place(e))
+graph save "${RESULTS_FINAL}f5_logit_iv_graph", replace
+graph export "${RESULTS_FINAL}f5_logit_iv_graph.png", as(png) replace		
+

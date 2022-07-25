@@ -68,21 +68,21 @@ Our central dataset is the Medicare claims data. We access these data through th
 
 We export all of the SAS data as csv files and perform all additional data wrangling in Stata as follows:
 
-1. [Physician Hospital Pairs](data-code/PhysicianHospital_Data.do) This file identifies all physician/hospital pairs and incorporates additional information about the physician practices and hospitals. The resulting dataset is at the physician/hospital/year level and includes our main independent variable of interest (i.e., an indicator for whether the physician practice is owned by a given hospital). This file calls the following code files in constructing the physician/hospital pairs: **old version - to be updated**
+1. [Physician Hospital Pairs](data-code/PhysicianHospital_Data.do) This file identifies all physician/hospital pairs and incorporates additional information about the physician practices and hospitals. The resulting dataset is at the physician/hospital/year level and includes our main independent variable of interest (i.e., an indicator for whether the physician practice is owned by a given hospital). This file calls the following code files in constructing the physician/hospital pairs: 
 
-  a. [Integration Data](data-code/PH1_PhysicianHospitalIntegration.do) This file matches physicians to hospitals based on observed claims data and information on ownership status from SK&A. **old version - to be updated**
+    a. [Integration Data](data-code/PH1_PhysicianHospitalIntegration.do) This file matches physicians to hospitals based on observed claims data and information on ownership status from SK&A. **old version - to be updated**
   
-  b. [HCRIS Data](data-code/PH2_HCRIS_Data.do) Construct hospital-level variables from cost reports. These data were created locally and then exported into the VRDC for use in this project. Please see the HCRIS GitHub repository [here](https://github.com/imccart/HCRIS) for more details on the creation of the hospital-level HCRIS data.
+    b. [HCRIS Data](data-code/PH2_HCRIS_Data.do) Construct hospital-level variables from cost reports. These data were created locally and then exported into the VRDC for use in this project. Please see the HCRIS GitHub repository [here](https://github.com/imccart/HCRIS) for more details on the creation of the hospital-level HCRIS data.
   
-  c. [Inpatient PPS Final Rule](data-code/PH3_Inpatient_PPS_Data.do) Collect data on hospital case mix and other variables from the inpatient prospective payment system final rule files. These data were downloaded locally directly from CMS (publicly available) and then uploaded into the VRDC for use in this project.
+    c. [Inpatient PPS Final Rule](data-code/PH3_Inpatient_PPS_Data.do) Collect data on hospital case mix and other variables from the inpatient prospective payment system final rule files. These data were downloaded locally directly from CMS (publicly available) and then uploaded into the VRDC for use in this project.
   
-  d. [AHA Data](data-code/PH4-AHA_Data.do) Collect data on hospital characteristics from the AHA annual surveys. These data are private but available for purchase from the AHA. The data were uploaded directly into the VRDC for use in this project.
+    d. [AHA Data](data-code/PH4-AHA_Data.do) Collect data on hospital characteristics from the AHA annual surveys. These data are private but available for purchase from the AHA. The data were uploaded directly into the VRDC for use in this project.
   
-  e. [ACS Data](data-code/PH5_ACS_Data.do) Collect county-level information (education, income, employment) from the American Community Survey. These data were created locally and uploaded into the VRDC for use in this project. 
+    e. [ACS Data](data-code/PH5_ACS_Data.do) Collect county-level information (education, income, employment) from the American Community Survey. These data were created locally and uploaded into the VRDC for use in this project. 
   
-  f. [VRDC Hospital Data](data-code/PH6_SAS_Hospitals.do) Collect hospital information based on observed claims data. The main purpose of this file is to identify a set of unique hospital NPIs based on inpatient stays from the VRDC claims data.
+    f. [VRDC Hospital Data](data-code/PH6_SAS_Hospitals.do) Collect hospital information based on observed claims data. The main purpose of this file is to identify a set of unique hospital NPIs based on inpatient stays from the VRDC claims data.
   
-  g. [Pay for Performance Data](data-code/PH7_PFP_Data.do) Collect indicators for whether hospitals participated in certain pay for performance programs. These data come from the MEDPAR files.
+    g. [Pay for Performance Data](data-code/PH7_PFP_Data.do) Collect indicators for whether hospitals participated in certain pay for performance programs. These data come from the MEDPAR files.
   
 
 2. [Episode Spending](data-code/_Spending_Data.do) Form total spending and indicators for discharge status for each episode.
@@ -91,4 +91,4 @@ We export all of the SAS data as csv files and perform all additional data wrang
 
 4. [Referral Data](data-code/_Referral_Data.do) Decomposition of claims within an episode based on whether the billing physician is part of the same practice, some other integrated practice with the same hospital, or some other non-integrated practice. This information is used to measure whether newly acquired physicians are more likely to send patients to other practices owned by the same hospital.
 
-5. [Instrumental Variables](data-code/_Instruments_Data.do) Construct our instrument following Dranove and Ody (2019). This file includes data that was created locally and imported for analysis within the VRDC. See the GitHub repository [here](https://github.com/imccart/PFS_Update_2010) for more details on the creation of these data and replication of Dranove and Ody (2019).  **old version - to be updated**
+5. [Instrumental Variables](data-code/_Instruments_Data.do) Construct our instrument following Dranove and Ody (2019). This file includes data that was created locally and imported for analysis within the VRDC. See the GitHub repository [here](https://github.com/imccart/PFS_Update_2010) for more details on the creation of these data and replication of Dranove and Ody (2019). 

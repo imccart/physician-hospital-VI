@@ -8,4 +8,18 @@ The file is organized in several sections, discussed in more detail below:
 
 1. **Build Final Analytic Data:** This section of the code simply merges all of the relevant data for our analysis and imposes some final sample restrictions. In particular, since our instrument only has identifying variation beginning in 2010, we drop all inpatient stays prior to January 2010. We also drop any episodes for which we are unable to estimate quality outcomes.
 
-2. To be continued
+2. **Initial Summary Statistics:**
+
+3. **Integration and Episode Spending and Claims:**
+
+4. **Integration and Quality:**
+
+5. **Effects of Integration on Components of Episodes:**
+
+6. **Unconditional Quantile Regressions:**
+
+7. **Referral Patterns within an Episode:**
+
+8. **Total Physician Effort (Count of Claims and Spending) by Year:**
+
+9. **Specification Charts:**

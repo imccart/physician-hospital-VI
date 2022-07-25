@@ -3,164 +3,74 @@
 **	Description:	Measure integration for each physician-hospital pair
 **	Author:			Ian McCarthy
 **	Date Created:	10/30/17
-**	Date Updated:	5/15/2020
+**	Date Updated:	5/18/22
 ******************************************************************
 
-** Drop physicians affiliated with multiple practices
-** -- likely little if any effect since SK&A data include all physicians 
-**    (not just surgeons)
+
+******************************************************************
+/* Bi-annual SKA data */
+******************************************************************
 use "S:\IMC969\Stata Uploaded Data\SKA_PhysicianLevel_v2.dta", clear
-bys physician_npi Year: gen obs=_N
-drop if obs>1
+bys physician_npi Year: gen obs=_n
+keep if obs==1
 drop obs
-save temp_ska_physician, replace
 
-******************************************************************
-/* Read and Clean NPI Integration Panel */
-******************************************************************
+keep physician_npi Year SKA_Practice_ID SKA_System_Code SKA_System_Name vert_integrated horz_integrated ///
+	zip fips size ihs_prac ihs_new indy_prac ehr avg_exper avg_female adult_pcp multi surg
 
-** 2008 Data (have to use lagged 2009 data)
-use temp_ska_physician, clear
+foreach x of varlist SKA_Practice_ID SKA_System_Code SKA_System_Name vert_integrated horz_integrated ///
+	zip fips size ihs_prac ihs_new indy_prac ehr avg_exper avg_female adult_pcp multi surg {
+		rename `x' `x'_v1
+	}
+
+preserve
 keep if Year==2009
 drop Year
-rename vert_integrated VI1
-rename horz_integrated HI1
-gen Year=2008
-save temp_npi_vi_2008, replace
+save temp_ska1_2008, replace
+restore
 
-
-** 2009 Data
-use temp_ska_physician, clear
+preserve
 keep if Year==2009
 drop Year
-rename vert_integrated VI1
-rename horz_integrated HI1
-gen Year=2009
-save temp_npi_vi_2009, replace
+save temp_ska1_2009, replace
+restore
 
-
-** 2010 Data - use 2009 or 2011
-use temp_ska_physician, clear
+preserve
 keep if Year==2009
 drop Year
-rename vert_integrated VI1
-rename horz_integrated HI1
-gen Year=2010
-save temp_npi_vi_2010a, replace
+save temp_ska1_2010, replace
+restore
 
-use temp_ska_physician, clear
+preserve
 keep if Year==2011
 drop Year
-rename vert_integrated VI2
-rename horz_integrated HI2
-gen Year=2010
-save temp_npi_vi_2010b, replace
+save temp_ska1_2011, replace
+restore
 
-use temp_npi_vi_2010a, clear
-merge 1:1 physician_npi using temp_npi_vi_2010b
-replace VI1=VI2 if _merge==2
-replace HI1=HI2 if _merge==2
-replace VI2=VI1 if _merge==1
-replace HI2=HI1 if _merge==1
-drop _merge
-save temp_npi_vi_2010, replace
-
-
-** 2011 Data
-use temp_ska_physician, clear
+preserve
 keep if Year==2011
 drop Year
-rename vert_integrated VI1
-rename horz_integrated HI1
-gen Year=2011
-save temp_npi_vi_2011, replace
+save temp_ska1_2012, replace
+restore
 
-
-** 2012 Data - use 2011 or 2013
-use temp_ska_physician, clear
-keep if Year==2011
-drop Year
-rename vert_integrated VI1
-rename horz_integrated HI1
-gen Year=2012
-save temp_npi_vi_2012a, replace
-
-use temp_ska_physician, clear
+preserve
 keep if Year==2013
 drop Year
-rename vert_integrated VI2
-rename horz_integrated HI2
-gen Year=2012
-save temp_npi_vi_2012b, replace
+save temp_ska1_2013, replace
+restore
 
-use temp_npi_vi_2012a, clear
-merge 1:1 physician_npi using temp_npi_vi_2012b
-replace VI1=VI2 if _merge==2
-replace HI1=HI2 if _merge==2
-replace VI2=VI1 if _merge==1
-replace HI2=HI1 if _merge==1
-drop _merge
-save temp_npi_vi_2012, replace
-
-
-** 2013 Data
-use temp_ska_physician, clear
+preserve
 keep if Year==2013
 drop Year
-rename vert_integrated VI1
-rename horz_integrated HI1
-gen Year=2013
-save temp_npi_vi_2013, replace
+save temp_ska1_2014, replace
+restore
 
-
-** 2014 Data - use 2013 or 2015
-use temp_ska_physician, clear
-keep if Year==2013
-drop Year
-rename vert_integrated VI1
-rename horz_integrated HI1
-gen Year=2014
-save temp_npi_vi_2014a, replace
-
-use temp_ska_physician, clear
+preserve
 keep if Year==2015
 drop Year
-rename vert_integrated VI2
-rename horz_integrated HI2
-gen Year=2014
-save temp_npi_vi_2014b, replace
+save temp_ska1_2015, replace
+restore
 
-use temp_npi_vi_2014a, clear
-merge 1:1 physician_npi using temp_npi_vi_2014b
-replace VI1=VI2 if _merge==2
-replace HI1=HI2 if _merge==2
-replace VI2=VI1 if _merge==1
-replace HI2=HI1 if _merge==1
-drop _merge
-save temp_npi_vi_2014, replace
-
-** 2015 Data
-use temp_ska_physician, clear
-keep if Year==2015
-drop Year
-rename vert_integrated VI1
-rename horz_integrated HI1
-gen Year=2015
-save temp_npi_vi_2015, replace
-
-** Append years
-use temp_npi_vi_2008, clear
-forvalues t=2009/2015 {
-	append using temp_npi_vi_`t'
-}
-replace VI2=VI1 if VI2==. & VI1!=.
-replace HI2=HI1 if HI2==. & HI1!=.
-replace VI1=VI2 if VI1==. & VI2!=.
-replace HI1=HI2 if HI1==. & HI2!=.
-
-drop zip fips 
-sort physician_npi Year
-save "${DATA_FINAL}PhysicianIntegration.dta", replace
 
 
 
@@ -316,24 +226,244 @@ bys physician_npi: gen HospitalCount=_N
 gen Year=2015
 save temp_phyaff_2015, replace
 
-** Append years
-use temp_phyaff_2008, clear
+
+******************************************************************
+/* Data on physician practices from MDPPAS */
+******************************************************************
+forvalues t=2008(1)2015 {
+	insheet using "${DATA_SAS}MDPPAS_V23_`t'.tab", tab clear
+	gen birth_date=date(birth_dt, "DMY")
+	format birth_date %td
+	gen age = (td(1jan`t') - birth_date)/365.25
+	replace age=floor(age)
+	gen female=(sex=="F")
+	
+	keep npi age female tin1 tin2 tin1_unq_benes tin2_unq_benes cbsa_cd
+	bys npi: gen npi_practice=_N
+	drop if npi_practice>1
+	bys tin1 cbsa_cd: gen prac_size=_N if tin1!=. & cbsa_cd!=.
+	bys tin1 cbsa_cd: egen avg_female=mean(female) if tin1!=. & cbsa_cd!=.
+	bys tin1 cbsa_cd: egen avg_age=mean(age) if tin1!=. & cbsa_cd!=.
+	
+**	keep npi age female tin1 tin2 tin1_unq_benes tin2_unq_benes prac_size avg_female avg_age cbsa_cd
+	keep npi age female tin1 tin2 tin1_unq_benes tin2_unq_benes avg_age cbsa_cd
+	destring npi, force replace
+	rename npi physician_npi
+	drop if physician_npi==.
+	save temp_npi_practice_`t', replace
+} 
+
+
+
+******************************************************************
+/* Vertical Integration Info from SKA and Observed Claims */
+/* - This matching uses information from observed claims by limiting
+     the set of possible matches only to those for which physicians have
+	 observed billable activity. This avoids a lot of mismatched data
+	 due to ambigous or general hospital names (names are less ambiguous among
+	 the set of hospitals for which a physician operates versus the full
+	 set of hospitals in the country). */
+******************************************************************
+
+
+***********************************
+** Annual SKA data
+forvalues t=2008(1)2015 {
+	if `t'==2008 | `t'==2009 {
+		insheet using "S:\IMC969\Stata Uploaded Data\SKA\ska-200910.csv", clear
+	}
+	else if `t'==2010 {
+		insheet using "S:\IMC969\Stata Uploaded Data\SKA\ska-201004.csv", clear
+	}
+	else if `t'==2011 {
+		use "S:\IMC969\Stata Uploaded Data\SKA\ska-201104.dta", clear
+	}
+	else if `t'==2012 {
+		insheet using "S:\IMC969\Stata Uploaded Data\SKA\ska-201210.csv", clear
+	}
+	else if `t'==2013 {
+		insheet using "S:\IMC969\Stata Uploaded Data\SKA\ska-201310.csv", clear
+	}
+	else if `t'==2014 {
+		insheet using "S:\IMC969\Stata Uploaded Data\SKA\ska-201410.csv", clear
+	}
+	else if `t'==2015 {
+		insheet using "S:\IMC969\Stata Uploaded Data\SKA\ska-201504.csv", clear
+	}
+	 
+	rename id SKA_Practice_ID
+	rename code4 SKA_System_Code
+	rename expl4 SKA_System_Name
+	rename code5 SKA_Hospital_Code
+	rename expl5 SKA_Hospital_Name
+	replace SKA_Hospital_Name=lower(SKA_Hospital_Name)
+	replace SKA_System_Name=lower(SKA_System_Name)
+	gen multi=(code2=="MUL")
+	gen surg=(fs=="T")
+	gen indy_prac=(SKA_System_Code=="" & code3=="")
+
+	keep npi SKA_Practice_ID zip fips size multi surg indy_prac SKA_System_Code SKA_System_Name SKA_Hospital_Code SKA_Hospital_Name
+	drop if npi==.
+	bys npi: gen obs=_n
+	keep if obs==1
+	drop obs
+
+	rename npi physician_npi
+	merge 1:1 physician_npi using temp_ska1_`t', keep(master match) generate(SKA_Version_Merge)
+	replace surg_v1=surg if surg_v1==.
+	replace size=size_v1 if size==.
+	keep physician_npi SKA_Practice_ID SKA_Hospital_Name SKA_System_Name SKA_System_Code SKA_Hospital_Code ///
+		zip fips size multi indy_prac surg_v1 avg_female_v1 avg_exper_v1 adult_pcp_v1 ehr_v1
+	foreach x of newlist surg avg_exper adult_pcp ehr avg_female {
+		rename `x'_v1 `x'
+	}
+	rename size prac_size
+	save temp_ska_`t', replace
+}
+
+/*
+** compare versions of SKA
+use temp_ska_2008, clear
+browse physician_npi SKA_Hospital_Name SKA_System_Name SKA_System_Name_v1 surg surg_v1 multi multi_v1 size size_v1 indy_prac indy_prac_v1
+*/
+
+***********************************
+** raw AHA data
+forvalues t=2008(1)2015 {
+	local y=substr("`t'",-2,.)
+	if `t'==2008 | `t'==2009 {
+		insheet using "${DATA_AHA}pubas`y'.csv", clear case	
+		capture confirm variable NPI_NUM
+		if (_rc==0) {
+			rename NPI_NUM NPINUM
+		}		
+	}
+	else if inrange(`t',2010,2015) {
+		insheet using "${DATA_AHA}ASPUB`y'.csv", clear case
+	}
+	keep MNAME SYSID SYSNAME NPINUM MCRNUM
+	destring MCRNUM, force replace
+	drop if NPINUM==.
+	bys NPINUM: gen obs=_n
+	keep if obs==1
+	drop obs
+
+	rename NPINUM hospital_npi
+	replace MNAME=lower(MNAME)
+	replace SYSNAME=lower(SYSNAME)
+	rename MNAME AHA_Hospital_Name
+	rename SYSNAME AHA_System_Name
+	save temp_aha_`t', replace
+}
+
+***********************************
+** identify integrated pairs
+forvalues t=2008(1)2015 {
+	use temp_phyaff_`t', clear
+	merge m:1 physician_npi using temp_ska_`t', generate(SKA_Match) keep(master match)
+	merge m:1 hospital_npi using temp_aha_`t', nogenerate keep(master match)
+	merge m:1 physician_npi using temp_npi_practice_`t', nogenerate keep(master match)
+	replace hosp_name=lower(hosp_name)
+
+	** clean names and deal with very common words 
+	** 	- keeping common names for now because they are informative among the set of hospitals for which a physician operates
+	foreach x of varlist hosp_name SKA_System_Name SKA_Hospital_Name AHA_System_Name AHA_Hospital_Name {
+**		replace `x'=subinstr(`x',"medical center","",.)
+**		replace `x'=subinstr(`x',"health","",.)	
+**		replace `x'=subinstr(`x',"care","",.)
+**		replace `x'=subinstr(`x',"hospital","",.)	
+**		replace `x'=subinstr(`x',"system","",.)
+**		replace `x'=subinstr(`x',"foundation","",.)
+		replace `x'=subinstr(`x',"inc.","",.)
+		replace `x'=subinstr(`x',",","",.)
+**		replace `x'=subinstr(`x',"university","",.)	
+		replace `x'=stritrim(`x')
+		replace `x'=strtrim(`x')
+	}
+
+	** using system names from SKA and AHA
+	gen system_nonmiss=(SKA_System_Name!="" & AHA_System_Name!="")
+	strdist SKA_System_Name AHA_System_Name if system_nonmiss==1, generate(AHA_SKA_System_Match)
+	bys physician_npi: egen min_match_val=min(AHA_SKA_System_Match)
+	bys physician_npi: egen max_match_val=max(AHA_SKA_System_Match)
+	gen system_match=(min_match_val==AHA_SKA_System_Match & system_nonmiss==1)
+	drop min_match_val max_match_val
+
+	** using hospital names from SKA and AHA
+	gen aha_hosp_nonmiss=(SKA_Hospital_Name!="" & AHA_Hospital_Name!="")
+	strdist SKA_Hospital_Name AHA_Hospital_Name if aha_hosp_nonmiss==1, generate(AHA_SKA_Hospital_Match)
+	bys physician_npi: egen min_match_val=min(AHA_SKA_Hospital_Match)
+	bys physician_npi: egen max_match_val=max(AHA_SKA_Hospital_Match)
+	gen aha_hosp_match=(min_match_val==AHA_SKA_Hospital_Match & aha_hosp_nonmiss==1)
+	drop min_match_val max_match_val
+
+	** using hospital names from SKA and claims
+	gen claim_hosp_nonmiss=(SKA_Hospital_Name!="" & hosp_name!="")
+	strdist SKA_Hospital_Name hosp_name if claim_hosp_nonmiss==1, generate(Claim_SKA_Hospital_Match)
+	bys physician_npi: egen min_match_val=min(Claim_SKA_Hospital_Match)
+	bys physician_npi: egen max_match_val=max(Claim_SKA_Hospital_Match)
+	gen claim_hosp_match=(min_match_val==Claim_SKA_Hospital_Match & claim_hosp_nonmiss==1)
+	drop min_match_val max_match_val
+
+	** using hospital names from AHA and system names from SKA
+	gen other_nonmiss=(SKA_System_Name!="" & AHA_Hospital_Name!="")
+	strdist SKA_System_Name AHA_Hospital_Name if other_nonmiss==1, generate(Other_Hospital_Match)
+	bys physician_npi: egen min_match_val=min(Other_Hospital_Match)
+	bys physician_npi: egen max_match_val=max(Other_Hospital_Match)
+	gen other_hosp_match=(min_match_val==Other_Hospital_Match & other_nonmiss==1)
+	drop min_match_val max_match_val
+
+	** using hospital names from claims and system names from SKA
+	gen other_claim_nonmiss=(SKA_System_Name!="" & hosp_name!="")
+	strdist SKA_System_Name hosp_name if other_claim_nonmiss==1, generate(Other_Claim_Hospital_Match)
+	bys physician_npi: egen min_match_val=min(Other_Claim_Hospital_Match)
+	bys physician_npi: egen max_match_val=max(Other_Claim_Hospital_Match)
+	gen other_claim_hosp_match=(min_match_val==Other_Claim_Hospital_Match & other_claim_nonmiss==1)
+	drop min_match_val max_match_val
+	
+	
+	** assign VI indicators	
+	gen VI_any=(SKA_Hospital_Name!="" | SKA_System_Name!="")
+	replace VI_any=. if SKA_Match==1
+	gen rel_match_aha_sys=AHA_SKA_System_Match/strlen(SKA_System_Name)
+	gen rel_match_aha_hosp=AHA_SKA_Hospital_Match/strlen(SKA_Hospital_Name)
+	gen rel_match_claim_hosp=Claim_SKA_Hospital_Match/strlen(SKA_Hospital_Name)
+	gen rel_match_other_hosp=Other_Hospital_Match/strlen(SKA_System_Name)
+	gen rel_match_other_claim_hosp=Other_Claim_Hospital_Match/strlen(SKA_System_Name)
+	egen best_match=rowmin(rel_match_aha_sys rel_match_aha_hosp rel_match_claim_hosp rel_match_other_hosp rel_match_other_claim_hosp)
+
+	local step=0
+	forvalues i=.25(.25).75 {
+		local step=`step'+1
+		local l=`i'-0.25
+		gen VI_`step'=0
+		replace VI_`step'=1 if system_match==1 & rel_match_aha_sys==best_match & best_match<`i' & best_match>=`l'
+		replace VI_`step'=1 if aha_hosp_match==1 & rel_match_aha_hosp==best_match & best_match<`i' & best_match>=`l'
+		replace VI_`step'=1 if claim_hosp_match==1 & rel_match_claim_hosp==best_match & best_match<`i' & best_match>=`l'
+		replace VI_`step'=1 if other_hosp_match==1 & rel_match_other_hosp==best_match & best_match<`i' & best_match>=`l'
+		replace VI_`step'=1 if other_claim_hosp_match==1 & rel_match_other_claim_hosp==best_match & best_match<`i' & best_match>=`l'
+	}
+	gen VI=VI_1 if VI_any==1
+	replace VI=VI_2 if VI==0 & VI_any==1
+	replace VI=0 if VI_any!=1
+	bys physician_npi: egen sum_vi=total(VI)
+	gen VI_assign=(sum_vi>0)
+	gen VI_missing=(VI_assign==0 & VI_any==1)
+	
+	drop best_match system_match aha_hosp_match claim_hosp_match other_hosp_match other_claim_hosp_match ///
+		system_nonmiss aha_hosp_nonmiss claim_hosp_nonmiss other_nonmiss other_claim_nonmiss rel_match_* ///
+		AHA_SKA_Hospital_Match AHA_SKA_System_Match Claim_SKA_Hospital_Match Other_Hospital_Match sum_vi
+	save ph_integration_`t', replace
+}
+
+
+use ph_integration_2008, clear
 forvalues t=2009/2015{
-	append using temp_phyaff_`t'
+	append using ph_integration_`t', force
 }
 
 gen byte nonmiss=!mi(hosp_zip)
 sort hospital_npi nonmiss
 bys hospital_npi (nonmiss): replace hosp_zip=hosp_zip[_N] if nonmiss==0
 drop nonmiss
-save "${DATA_FINAL}Physician_Choice.dta", replace
-
-
-******************************************************************
-/* Merge affiliation and integration data */
-******************************************************************
-use "${DATA_FINAL}Physician_Choice.dta", clear
-merge m:1 physician_npi Year using "${DATA_FINAL}PhysicianIntegration.dta", generate(SKA_Physician_Merge) keep(master match)
 save "${DATA_FINAL}PhysicianHospital_Integration.dta", replace
-
-
