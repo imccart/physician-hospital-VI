@@ -33,4 +33,20 @@ Department of Economics • Baylor University<br>
 
 ---
 
-Welcome! This is a small site designed to house materials for our project, "Owning the Agent: Hospital Influence on Physician Behaviors." Use the top menu to navigate the site, and you can find all of the source code at the GitHub repository, [here](https://github.com/imccart/physician-hospital-vi).
+Welcome! This is a small site designed primarily to house materials for our project, "Owning the Agent: Hospital Influence on Physician Behaviors." Use the top menu to navigate the site, and you can find all of the source code at the GitHub repository, [here](https://github.com/imccart/physician-hospital-vi). Links to the working paper, and our related paper on vertical integration and hospital pricing, are listed below. This project was also supported in-part by grant number R00HS022431 from the Agency for Healthcare Research and Quality.
+
+
+---
+
+"Owning the Agent: Hospital Influence on Physician Behaviors" <br>
+
+<a href=https://www.nber.org/papers/w28859><i class="fas fa-download"> **Download Working Paper**</i></a><br>
+
+<a href=https://data.nber.org/data-appendix/w28859/vi-physicians-appendix.pdf><i class="fas fa-download"> **Download Supplemental Appendix**</i></a><br>
+
+
+---
+
+"Hospital Prices Following Integration with Physician Practices", Journal of Health Economics, 2021 <br>
+
+<a href=https://www.sciencedirect.com/science/article/pii/S0167629621000291><i class="fas fa-download"> **Download Paper**</i></a><br>
