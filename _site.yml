@@ -1,6 +1,8 @@
 name: "physician-hospital-vi"
 output_dir: docs
 exclude: ["data"]
+include:
+    - "_*.html"
 navbar:
   title: "Physician and Hospital VI"
   left:

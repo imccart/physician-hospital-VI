@@ -7,5 +7,5 @@ This repo organizes the necessary data and code files to replicate results for o
 ------------------------------------------------------------------------
 **Ian McCarthy**  
 Department of Economics • Emory University<br>
-Faculty Research Fellow • National Bureau of Economic Research<br>
+Research Associate • National Bureau of Economic Research<br>
 [ianmccarthyecon.com](https://www.ianmccarthyecon.com) • [\@ianhealthecon](https://twitter.com/ianhealthecon)
