@@ -3,6 +3,8 @@ output_dir: docs
 exclude: ["data"]
 include:
     - "_*.html"
+    - "_*.SAS"
+    - "_*.do"
 navbar:
   title: "Physician and Hospital VI"
   left:
