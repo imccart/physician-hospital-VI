@@ -11,7 +11,7 @@ log using "S:\IMC969\Logs\Episodes\Analysis_`logdate'.log", replace
 **	Date Updated:	5/18/22
 ******************************************************************
 
-cd "S:\IMC969\Temp and ado files\"
+cd "/home/imc969/files/dua_027710/stata-ado"
 
 ******************************************************************
 ** Preliminaries
@@ -19,14 +19,13 @@ set more off
 set maxvar 10000
 set scheme uncluttered
 
-global DATA_SAS "S:\IMC969\SAS Data v2\"
-global DATA_FINAL "S:\IMC969\Final Data\Physician Agency Episodes\"
-global RESULTS_FINAL "S:\IMC969\Results\Physician Agency Episodes\202203\"
+global DATA_FINAL "/home/imc969/files/dua_027710/ph-vi/data/"
+global DATA_SAS "/home/imc969/files/dua_27710/data-sas/"
+global RESULTS_FINAL "/home/imc969/files/dua_027710/ph-vi/results/"
 
 
 ******************************************************************
-** 1. Build final dataset
-******************************************************************
+** Build final dataset
 
 ** reduce physician/hospital dataset to key variables and merge with instruments
 use "${DATA_FINAL}PhysicianHospital_Data.dta", clear
@@ -49,9 +48,55 @@ format admit %td
 drop if admit<d(01jan2010)
 save temp_episode_spend, replace
 
+/*
+** quick check of episode spending as a share of total patient spending per year
+forvalues y=2010/2015 {
+	insheet using "${DATA_SAS}TOTALBENE_`y'.tab", tab clear
+	
+	gen yearly_parta_pay=tot_payment
+	gen yearly_parta_claims=tot_claims
+	gen Year=`y'
+	keep bene_id Year yearly_parta_pay yearly_parta_claims
+	save temp_pay1, replace
+	
+	insheet using "${DATA_SAS}CARRIER_`y'.tab", tab clear
+	collapse (sum) yearly_carrier_pay=carrier_pay yearly_carrier_claims=carrier_claims, by(bene_id)
+	gen Year=`y'
+	save temp_pay2, replace
+	
+	use temp_episode_spend, clear
+	keep bene_id admit Year pre_op_claims admit_op_claims post_op_claims pre_carrier_claims admit_carrier_claims post_carrier_claims episode_claims episode_pay
+	keep if Year==`y'
+	merge m:1 bene_id Year using temp_pay1, nogenerate keep(match)
+	merge m:1 bene_id Year using temp_pay2, nogenerate keep(match)
+	save temp_episode_spend_`y', replace	
+}
+
+use temp_episode_spend_2010, clear
+forvalues y=2011/2015 {
+	append using temp_episode_spend_`y'
+}
+gen admit_month=month(admit)
+keep if admit_month>1 & admit_month<10
+gen episode_share=episode_pay/(yearly_parta_pay + yearly_carrier_pay)
+sum episode_share if episode_pay>0 & episode_pay!=.
+
+
+** quick check of changes in tax IDs for acquired physicians
+use "${DATA_FINAL}PhysicianHospital_Data.dta", clear
+keep physician_npi tin1 PH_VI Year
+bys physician_npi tin1 PH_VI Year: gen obs=_n
+keep if obs==1
+drop obs
+bys physician_npi: egen min_vi=min(PH_VI)
+bys physician_npi: egen max_vi=max(PH_VI)
+keep if min_vi!=max_vi
+
+*/
 
 ******************************************************************
 ** Create additional variables
+******************************************************************
 use temp_episode_spend, clear
 
 
@@ -109,10 +154,12 @@ count
 count if unique_phy==1
 count if unique_hosp==1
 count if unique_pair==1
+
 save "${DATA_FINAL}FinalEpisodesData.dta", replace
 
 ******************************************************************
 ** Global varlists
+******************************************************************
 use "${DATA_FINAL}FinalEpisodesData.dta", clear
 global COUNTY_VARS TotalPop Age_18to34 Age_35to64 Age_65plus Race_White Race_Black ///
 	Income_50to75 Income_75to100 Income_100to150 Income_150plus Educ_HSGrad ///
@@ -125,9 +172,9 @@ global OUTCOMES_COMP ln_ep_pay ln_ip ln_op ln_carrier ln_snf_pay ln_hha_pay ln_i
 global OUTCOMES_REFERRAL op_same_phy op_vi_phy op_same_hosp carrier_same_phy carrier_vi_phy carrier_same_hosp
 global PATIENT_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1 i.clm_drg_cd
 global ABSORB_VARS phy_hosp
-	
+
 ******************************************************************
-** 2. Summary Statistics
+** Summary Statistics
 ******************************************************************
 tab Year
 tab Year if phy_obs==1
@@ -227,7 +274,7 @@ restore
 
 
 ******************************************************************
-** 3. Integration and Overall Spending
+** Effect on Physician Behaviors
 ******************************************************************	
 
 ********************************************
@@ -384,7 +431,7 @@ gr_edit .xaxis1.reset_rule 10, tickset(major) ruletype(suggest)
 graph save "${RESULTS_FINAL}f2_EventCharge_CSDID_Covars", replace
 graph export "${RESULTS_FINAL}f2_EventCharge_CSDID_Covars.png", as(png) replace
 
-csdid episode_claims Hospital_VI $HOSP_CONTROLS $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1, time(Year) gvar(cs_time) notyet cluster(physician_npi)
+csdid episode_claims Hospital_VI $HOSP_CONTROLS $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1, time(Year) gvar(cs_time) notyet
 csdid_estat event
 csdid_plot, ytitle(Estimated ATT)
 gr_edit .xaxis1.reset_rule 10, tickset(major) ruletype(suggest) 
@@ -425,12 +472,9 @@ reghdfe PH_VI Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.mon
 test total_revchange
 
 ** reduced form
-reghdfe ln_ep_pay total_revchange Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.month i.Year, ///
+reghdfe episode_claims total_revchange Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.month i.Year, ///
 		absorb($ABSORB_VARS) cluster(physician_npi)
 test total_revchange
-
-reghdfe episode_claims Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.month i.Year (PH_VI=total_revchange), ///
-		absorb($ABSORB_VARS) cluster(physician_npi)
 
 		
 ** iv estimates		
@@ -454,10 +498,8 @@ esttab feiv_spend3 feiv_spend4 feiv_spend5 using "${RESULTS_FINAL}t4_spend_feiv.
 	stats(N, fmt(%9.0fc) labels(`"Observations"')) nonum collabels(none) gaps noobs
 	
 
-******************************************************************
-** 4. Integration and Quality
-******************************************************************
-use "${DATA_FINAL}FinalEpisodesData.dta", clear
+********************************************
+** Investigate changes in quality
 local step=0
 foreach x of varlist $OUTCOMES_QUAL {
 	local step=`step'+1
@@ -484,13 +526,12 @@ esttab fe_qual_1 fe_qual_2 fe_qual_5 feiv_qual_1 feiv_qual_2 feiv_qual_5 using "
 	
 		
 ****************************************************************************************
-** 5. Components of episode
+** Components of episode
 ****************************************************************************************	
-use "${DATA_FINAL}FinalEpisodesData.dta", clear
 
 ** payments
 qui reghdfe episode_pay Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month (PH_VI=total_revchange), ///
-	absorb($ABSORB_VARS) cluster(physician_npi)
+	absorb($ABSORB_VARS) cluster(physician_npi) old
 est store feiv_comppay1
 
 local step=1
@@ -500,11 +541,11 @@ foreach x of varlist pay_ip pay_op carrier_pay pay_snf pay_hha {
 	local `x'_tail=r(p99)
 	local step=`step'+1
 	qui reghdfe `x' PH_VI Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month if `x'<``x'_tail', ///
-		absorb($ABSORB_VARS) cluster(physician_npi)
+		absorb($ABSORB_VARS) cluster(physician_npi) old
 	est store fe_comppay`step'	
 	
 	qui reghdfe `x' Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month (PH_VI=total_revchange) if `x'<``x'_tail', ///
-		absorb($ABSORB_VARS) cluster(physician_npi)
+		absorb($ABSORB_VARS) cluster(physician_npi) old
 	est store feiv_comppay`step'
 }
 
@@ -549,26 +590,27 @@ use temp_event_data, clear
 gen cs_time=first
 replace cs_time=0 if ever_vi==0
 
-
 foreach x of pay_ip pay_op carrier_pay pay_snf pay_hha ip_claims op_claims carrier_claims snf_claims hha_claims {
-  replace `x'=0 if `x'<0
-  sum `x', detail
-  local upper_tail=r(p99)
-  csdid `x' if `x'<`upper_tail', time(Year) gvar(cs_time) notyet cluster(physician_npi)
-  csdid_estat event
-  csdid_plot, ytitle(Estimated_ATT)
-  gr_edit .xaxis1.reset_rule 10, tickset(major) ruletype(suggest)
-  graph save "${RESULTS_FINAL}csdid_comp_`x'", replace
-  graph export "${RESULTS_FINAL}csdid_comp_`x'.png", as(png) replace
+	replace `x'=0 if `x'<0
+	sum `x', detail
+	local upper_tail=r(p99)
+	csdid `x' if `x'<`upper_tail', time(Year) gvar(cs_time) notyet cluster(physician_npi)
+	csdid_estat event
+	csdid_plot, ytitle(Estimated ATT)
+	gr_edit .xaxis1.reset_rule 10, tickset(major) ruletype(suggest) 
+	graph save "${RESULTS_FINAL}csdid_comp_`x'", replace
+	graph export "${RESULTS_FINAL}csdid_comp_`x'.png", as(png) replace
 }
-
+	
 
 ****************************************************************************************
-** 6. Unconditional quantile regressions
+** Unconditional quantile regressions
 ****************************************************************************************	
-use "${DATA_FINAL}FinalEpisodesData.dta", clear
+ivqreg2 ln_ep_pay PH_VI Hospital_VI, inst(total_revchange Hospital_VI) q(0.5)
+
 preserve
 qui tab Year, gen(yearfx)
+qui tab NPINUM, gen(hospfx)
 qui tab clm_drg_cd, gen(drgfx)
 qui tab cat_group1, gen(cat1fx)
 qui tab cat_group2, gen(cat2fx)
@@ -644,9 +686,147 @@ graph export "${RESULTS_FINAL}f7_QReg_Claims_Episode.png", as(png) replace
 restore
 
 	
+	****************************************************************************************
+** Plausibly exogenous estimation
+****************************************************************************************	
+preserve
+qui tab Year, gen(yearfx)
+qui tab month, gen(monthfx)
+qui tab clm_drg_cd, gen(drgfx)
+qui tab cat_group1, gen(cat1fx)
+qui tab cat_group2, gen(cat2fx)
+qui tab cat_group3, gen(cat3fx)
 
+
+local resid_step=0
+foreach x of varlist $HOSP_CONTROLS $COUNTY_VARS Hospital_VI yearfx* monthfx* drgfx* claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1  {
+	local resid_step=`resid_step'+1
+	qui areg `x', absorb(phy_hosp)
+	predict residx_`resid_step', r
+}
+qui areg PH_VI, absorb(phy_hosp)
+predict vi_resid, r
+
+qui areg total_revchange, absorb(phy_hosp)
+predict ins_resid, r
+
+qui areg ln_ep_pay, absorb(phy_hosp)
+predict pay_resid, r
+
+qui areg ln_ep_charge, absorb(phy_hosp)
+predict charge_resid, r
+		
+qui areg episode_claims, absorb(phy_hosp)
+predict claims_resid, r
+
+mat def results_pay=J(11,3,.)
+local step=0
+forvalues i=-.5(0.1).5 {
+	local step=`step'+1
+	local j=round(`i'*10+5,1)
+	plausexog uci pay_resid residx_* (vi_resid=ins_resid), gmin(`i') gmax(`i') grid(2) vce(robust)
+	display `step'
+	mat def A`j'=e(b)
+	mat def Var`j'=e(V)
+	mat results_pay[`step',1]=A`j'[1,1]
+	mat results_pay[`step',2]=sqrt(Var`j'[1,1])
+	mat results_pay[`step',3]=`i'
+}
+
+mat def results_charge=J(11,3,.)
+local step=0
+forvalues i=-.5(0.1).5 {
+	local step=`step'+1
+	local j=round(`i'*10+5,1)
+	plausexog uci charge_resid residx_* (vi_resid=ins_resid), gmin(`i') gmax(`i') grid(2) vce(robust)
+	display `step'
+	mat def A`j'=e(b)
+	mat def Var`j'=e(V)
+	mat results_charge[`step',1]=A`j'[1,1]
+	mat results_charge[`step',2]=sqrt(Var`j'[1,1])
+	mat results_charge[`step',3]=`i'
+}
+
+mat def results_claims=J(11,3,.)
+local step=0
+forvalues i=-5(1)5 {
+	local step=`step'+1
+	local j=round(`i'+5,1)
+	plausexog uci claims_resid residx_* (vi_resid=ins_resid), gmin(`i') gmax(`i') grid(2) vce(robust)
+	display `step'
+	mat def A`j'=e(b)
+	mat def Var`j'=e(V)
+	mat results_claims[`step',1]=A`j'[1,1]
+	mat results_claims[`step',2]=sqrt(Var`j'[1,1])
+	mat results_claims[`step',3]=`i'
+}
+
+
+clear
+svmat results_pay
+rename results_pay1 PH_VI
+rename results_pay2 PH_VI_SE
+rename results_pay3 excl_v
+gen int_ub=PH_VI + 1.96*PH_VI_SE
+gen int_lb=PH_VI - 1.96*PH_VI_SE
+gen cut=0
+
+twoway (rarea int_ub int_lb excl_v, color(gs14)) (line PH_VI excl_v, color(black)) ///
+	(line cut excl_v, color(black) lpattern(dot) lstyle(foreground)), ///
+	legend(off) ytitle("Effects on Episode Payments", margin(vsmall)) xtitle("Violation of Exclusion Restriction", margin(vsmall)) ///
+	ylabel( ,angle(0)) saving("${RESULTS_FINAL}appfig_Plausexog_Pay", replace)
+graph export "${RESULTS_FINAL}appfig_Plausexog_Pay.png", as(png) replace	
+
+
+clear
+svmat results_charge
+rename results_charge1 PH_VI
+rename results_charge2 PH_VI_SE
+rename results_charge3 excl_v
+gen int_ub=PH_VI + 1.96*PH_VI_SE
+gen int_lb=PH_VI - 1.96*PH_VI_SE
+gen cut=0
+
+twoway (rarea int_ub int_lb excl_v, color(gs14)) (line PH_VI excl_v, color(black)) ///
+	(line cut excl_v, color(black) lpattern(dot) lstyle(foreground)), ///
+	legend(off) ytitle("Effects on Episode Charges", margin(vsmall)) xtitle("Violation of Exclusion Restriction", margin(vsmall)) ///
+	ylabel( ,angle(0)) saving("${RESULTS_FINAL}appfig_Plausexog_Charge", replace)
+graph export "${RESULTS_FINAL}appfig_Plausexog_Charge.png", as(png) replace	
+
+
+clear
+svmat results_claims
+rename results_claims1 PH_VI
+rename results_claims2 PH_VI_SE
+rename results_claims3 excl_v
+gen int_ub=PH_VI + 1.96*PH_VI_SE
+gen int_lb=PH_VI - 1.96*PH_VI_SE
+gen cut=0
+
+twoway (rarea int_ub int_lb excl_v, color(gs14)) (line PH_VI excl_v, color(black)) ///
+	(line cut excl_v, color(black) lpattern(dot) lstyle(foreground)), ///
+	legend(off) ytitle("Effects on Episode Claims", margin(vsmall)) xtitle("Violation of Exclusion Restriction", margin(vsmall)) ///
+	ylabel( ,angle(0)) saving("${RESULTS_FINAL}appfig_Plausexog_Claims", replace)
+graph export "${RESULTS_FINAL}appfig_Plausexog_Claims.png", as(png) replace	
+restore
+
+**test sign of exclusion restrictions
+reghdfe ln_ep_pay PH_VI total_revchange Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month, ///
+		absorb($ABSORB_VARS) vce(robust)
+est store excl_1
+reghdfe ln_ep_charge PH_VI total_revchange Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month, ///
+		absorb($ABSORB_VARS) vce(robust)		
+est store excl_2		
+reghdfe episode_claims PH_VI total_revchange Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month, ///
+		absorb($ABSORB_VARS) vce(robust)		
+est store excl_3
+estout excl_*, style(tex) cells(b(star fmt(%10.3f)) ///
+	se(par)) stats(N r2) starlevels(* 0.10 ** 0.05 *** 0.01) keep(PH_VI total_revchange)
+
+	
+	
 ****************************************************************************************
-** 7. Examine referral patterns
+** Examine referral patterns
 ****************************************************************************************
 use "${DATA_FINAL}FinalEpisodesData.dta", clear
 merge 1:1 bene_id clm_id physician_npi NPINUM using "${DATA_FINAL}ReferralData.dta"
@@ -729,9 +909,8 @@ foreach x of varlist vi_phy_claims other_nonvi_claims pay_vi_phy pay_novi_phy {
 }	
 
 	
-	
 ****************************************************************************************
-** 8. Total Physician effort
+** Physician effort
 ****************************************************************************************	
 use "${DATA_FINAL}FinalEpisodesData.dta", clear
 keep physician_npi PH_VI total_revchange episode_pay episode_claims $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1 Year
@@ -739,16 +918,19 @@ collapse (mean) total_revchange $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 p
 gen year=Year
 merge 1:1 physician_npi year using "${DATA_FINAL}PhysicianEffort.dta", nogenerate keep(master match)
 drop year
+bys physician_npi: gen year_count=_N
 
 ** Physician payments
-replace pay_carrier=0 if pay_carrier<0
 replace pay_inpatient=0 if pay_inpatient<0
 replace pay_outpatient=0 if pay_outpatient<0
+replace pay_carrier=0 if pay_carrier<0
 gen pay_all=pay_carrier + pay_inpatient + pay_outpatient
+
 
 local step=0
 foreach x of varlist pay_carrier pay_inpatient pay_outpatient pay_all {
     local step=`step'+1
+	
 	sum `x', detail
 	local `x'_tail=r(p95)
 	local `x'_low=r(p5)
@@ -757,10 +939,13 @@ foreach x of varlist pay_carrier pay_inpatient pay_outpatient pay_all {
 		absorb(physician_npi) cluster(physician_npi)
 	est store fe_effort_pay`step'	
 	
-	qui reghdfe `x' $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1 i.Year (PH_VI=total_revchange) if `x'<``x'_tail'  & `x'>``x'_low' , ///
+	qui reghdfe `x' $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1 i.Year (PH_VI=total_revchange) if `x'<``x'_tail'  & `x'>``x'_low', ///
 		absorb(physician_npi) cluster(physician_npi)
 	sum `x' if e(sample)==1
 	est store feiv_effort_pay`step'
+	
+	reghdfe `x' $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1 i.Year (PH_VI=total_revchange) if `x'<``x'_tail'  & `x'>``x'_low' & year_count==6, ///
+		absorb(physician_npi) cluster(physician_npi)		
 }
 	
 ** Physician claims
@@ -768,18 +953,22 @@ gen claims_all=claims_carrier + claims_inpatient + claims_outpatient
 local step=0
 foreach x of varlist claims_carrier claims_inpatient claims_outpatient claims_all {
 	local step=`step'+1
+	
 	sum `x', detail
 	local `x'_tail=r(p95)
 	local `x'_low=r(p5)
 	
-	qui reghdfe `x' PH_VI $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1 i.Year if `x'<``x'_tail'  & `x'>``x'_low' , ///
+	qui reghdfe `x' PH_VI $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1 i.Year if `x'<``x'_tail'  & `x'>``x'_low', ///
 		absorb(physician_npi) cluster(physician_npi)
 	est store fe_effort_claims`step'	
 	
-	qui reghdfe `x' $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1 i.Year (PH_VI=total_revchange) if `x'<``x'_tail'  & `x'>``x'_low' , ///
+	qui reghdfe `x' $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1 i.Year (PH_VI=total_revchange) if `x'<``x'_tail'  & `x'>``x'_low', ///
 		absorb(physician_npi) cluster(physician_npi)
 	sum `x' if e(sample)==1
 	est store feiv_effort_claims`step'
+	
+	reghdfe `x' $COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1 i.Year (PH_VI=total_revchange) if `x'<``x'_tail'  & `x'>``x'_low' & year_count==6, ///
+		absorb(physician_npi) cluster(physician_npi)	
 }
 
 ** Display Results
@@ -818,7 +1007,7 @@ gen never_vi=(ever_vi==0)
 gen cs_time=first
 replace cs_time=0 if ever_vi==0
 	
-	
+
 foreach x of varlist claims_carrier claims_inpatient claims_outpatient claims_all pay_carrier pay_inpatient pay_outpatient pay_all {
 	replace `x'=0 if `x'<0
 	sum `x', detail
@@ -831,12 +1020,38 @@ foreach x of varlist claims_carrier claims_inpatient claims_outpatient claims_al
 	graph save "${RESULTS_FINAL}csdid_`x'", replace
 	graph export "${RESULTS_FINAL}csdid_`x'.png", as(png) replace
 }	
-	
-	
-** balaned-panel using panel version of event study
-bys physician_npi: gen year_count=_N
-keep if year_count==6
 
+replace ev_full10=1 if ev_full11==1
+eventstudyinteract claims_carrier ev_full1 ev_full2 ev_full3 ev_full4 ev_full6 ev_full7 ev_full8 ev_full9 ev_full10 if always_vi==0, ///
+	cohort(first) covariates($COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1) control_cohort(never_vi) absorb(physician_npi) vce(cluster physician_npi)
+est store ev_sa1
+
+matrix C = e(b_iw)
+mata st_matrix("A",sqrt(st_matrix("e(V_iw)")))
+matrix C = C \ A
+matrix list C
+coefplot matrix(C[1]), se(C[2]) vert ytitle("Log Episode Payments") xtitle("Period") xline(4.5) ///
+	coeflabels(ev_full1="-4" ev_full2="-3" ev_full3="-2" ev_full4="-1" ev_full6="0" ev_full7="+1" ev_full8="+2" ev_full9="+3" ev_full10="+4") yline(0, lwidth(vvthin) lcolor(gray))
+graph save "${RESULTS_FINAL}carrier_claims_SA", replace
+graph export "${RESULTS_FINAL}carrier_claims_SA.png", as(png) replace	
+
+
+eventstudyinteract claims_inpatient ev_full1 ev_full2 ev_full3 ev_full4 ev_full6 ev_full7 ev_full8 ev_full9 ev_full10 if always_vi==0, ///
+	cohort(first) covariates($COUNTY_VARS claim_q2 claim_q3 claim_q4 pay_q2 pay_q3 pay_q4 race_1 gender_1) control_cohort(never_vi) absorb(physician_npi) vce(cluster physician_npi)
+est store ev_sa1
+
+matrix C = e(b_iw)
+mata st_matrix("A",sqrt(st_matrix("e(V_iw)")))
+matrix C = C \ A
+matrix list C
+coefplot matrix(C[1]), se(C[2]) vert ytitle("Log Episode Payments") xtitle("Period") xline(4.5) ///
+	coeflabels(ev_full1="-4" ev_full2="-3" ev_full3="-2" ev_full4="-1" ev_full6="0" ev_full7="+1" ev_full8="+2" ev_full9="+3" ev_full10="+4") yline(0, lwidth(vvthin) lcolor(gray))
+graph save "${RESULTS_FINAL}ip_claims_SA", replace
+graph export "${RESULTS_FINAL}ip_claims_SA.png", as(png) replace
+
+	
+
+keep if year_count==6
 foreach x of varlist claims_carrier claims_inpatient claims_outpatient claims_all pay_carrier pay_inpatient pay_outpatient pay_all {
 	replace `x'=0 if `x'<0
 	sum `x', detail
@@ -855,7 +1070,7 @@ log close
 
 
 ****************************************************************************************
-** 9. Specification charts
+** Specification charts
 ****************************************************************************************
 use "${DATA_FINAL}FinalEpisodesData.dta", clear
 save temp_spec_data, replace
@@ -1054,15 +1269,15 @@ graph export "${RESULTS_FINAL}OLS_Episode_Payments_Spec2.png", as(png) replace
 ** Episode Payments with IV
 use temp_spec_data, clear
 qui reghdfe ln_ep_pay $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month (PH_VI=total_revchange), ///
-	absorb($ABSORB_VARS) cluster(physician_npi)
+	absorb($ABSORB_VARS) cluster(physician_npi) old
 specchart PH_VI, spec(base sample_full) replace
 	
 qui reghdfe ln_ep_pay Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month (PH_VI=total_revchange), ///
-	absorb($ABSORB_VARS) cluster(physician_npi)
+	absorb($ABSORB_VARS) cluster(physician_npi) old
 specchart PH_VI, spec(hospital_vi sample_full)
 			
 qui reghdfe ln_ep_pay Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month mortality_90 any_comp (PH_VI=total_revchange), ///
-	absorb($ABSORB_VARS) cluster(physician_npi)
+	absorb($ABSORB_VARS) cluster(physician_npi) old
 specchart PH_VI, spec(quality sample_full)
 
 bys phy_hosp: gen phy_hosp_obs=_N
@@ -1070,44 +1285,44 @@ forval i=10(10)50 {
 	preserve
 	keep if phy_hosp_obs>=`i'
 	qui reghdfe ln_ep_pay $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month (PH_VI=total_revchange), ///
-		absorb($ABSORB_VARS) cluster(physician_npi)
+		absorb($ABSORB_VARS) cluster(physician_npi) old
 	specchart PH_VI, spec(base sample`i')
 	
 	qui reghdfe ln_ep_pay Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month (PH_VI=total_revchange), ///
-		absorb($ABSORB_VARS) cluster(physician_npi)
+		absorb($ABSORB_VARS) cluster(physician_npi) old
 	specchart PH_VI, spec(hospital_vi sample`i')
 			
 	qui reghdfe ln_ep_pay Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month mortality_90 any_comp (PH_VI=total_revchange), ///
-		absorb($ABSORB_VARS) cluster(physician_npi)
+		absorb($ABSORB_VARS) cluster(physician_npi) old
 	specchart PH_VI, spec(quality sample`i')
 	restore
 }
 preserve
 keep if Discharge_Home==1
 qui reghdfe ln_ep_pay $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month (PH_VI=total_revchange), ///
-	absorb($ABSORB_VARS) cluster(physician_npi)
+	absorb($ABSORB_VARS) cluster(physician_npi) old
 specchart PH_VI, spec(base sample_snf)
 	
 qui reghdfe ln_ep_pay Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month (PH_VI=total_revchange), ///
-	absorb($ABSORB_VARS) cluster(physician_npi)
+	absorb($ABSORB_VARS) cluster(physician_npi) old
 specchart PH_VI, spec(hospital_vi sample_snf)
 			
 qui reghdfe ln_ep_pay Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month mortality_90 any_comp (PH_VI=total_revchange), ///
-	absorb($ABSORB_VARS) cluster(physician_npi)
+	absorb($ABSORB_VARS) cluster(physician_npi) old
 specchart PH_VI, spec(quality sample_snf)
 restore
 
 keep if clm_drg_cd==469 | clm_drg_cd==470
 qui reghdfe ln_ep_pay $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month (PH_VI=total_revchange), ///
-	absorb($ABSORB_VARS) cluster(physician_npi)
+	absorb($ABSORB_VARS) cluster(physician_npi) old
 specchart PH_VI, spec(base sample_drg)
 	
 qui reghdfe ln_ep_pay Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month (PH_VI=total_revchange), ///
-	absorb($ABSORB_VARS) cluster(physician_npi)
+	absorb($ABSORB_VARS) cluster(physician_npi) old
 specchart PH_VI, spec(hospital_vi sample_drg)
 			
 qui reghdfe ln_ep_pay Hospital_VI $HOSP_CONTROLS $COUNTY_VARS $PATIENT_VARS i.Year i.month mortality_90 any_comp (PH_VI=total_revchange), ///
-	absorb($ABSORB_VARS) cluster(physician_npi)
+	absorb($ABSORB_VARS) cluster(physician_npi) old
 specchart PH_VI, spec(quality sample_drg)
 
 
@@ -1169,8 +1384,8 @@ tw (scatter beta rank if hospital_vi==1 & sample_full==1, mcolor(blue) msymbol(D
 	graphregion(fcolor(white) lcolor(white)) plotregion(fcolor(white) lcolor(white))
 
 gr_edit .yaxis1.add_ticks -.175 `"Specification		"', custom tickset(major) editstyle(tickstyle(textstyle(size(vsmall))))
-gr_edit .yaxis1.add_ticks -.22 `"Base"', custom tickset(major) editstyle(tickstyle(textstyle(size(vsmall))))
-gr_edit .yaxis1.add_ticks -.20 `"Hospital VI"', custom tickset(major) editstyle(tickstyle(textstyle(size(vsmall))))
+gr_edit .yaxis1.add_ticks -.20 `"Base"', custom tickset(major) editstyle(tickstyle(textstyle(size(vsmall))))
+gr_edit .yaxis1.add_ticks -.22 `"Hospital VI"', custom tickset(major) editstyle(tickstyle(textstyle(size(vsmall))))
 gr_edit .yaxis1.add_ticks -.24 `"Quality"', custom tickset(major) editstyle(tickstyle(textstyle(size(vsmall))))
 
 gr_edit .yaxis1.add_ticks -.27 `"Sample		"', custom tickset(major) editstyle(tickstyle(textstyle(size(vsmall))))
