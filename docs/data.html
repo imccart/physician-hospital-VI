@@ -345,7 +345,7 @@ inpatient stay, we restrict this set of physicians to those observed as
 the operating physician in the inpatient stay files. In earlier years,
 we do not always observe physician NPIs. We find that information in
 three steps:</p>
-<ul>
+<ol style="list-style-type: lower-alpha">
 <li>look within inpatient claims (for the same year) to find physician
 NPI and UPIN matches;</li>
 <li>match NPIs from UPIN_NPI NBER crosswalk files; and</li>
@@ -354,21 +354,21 @@ versions are not available until 2010). Physician zip codes, tax ids,
 and specialties are taken from the carrier claims files when available,
 and otherwise from the NPPES files. Although the analysis relies more on
 the SK&amp;A data for physician practice characteristics.</li>
-</ul></li>
+</ol></li>
 <li><p><a href="data-code/3_HospitalData.sas">Hospital Data</a>. This
 code file creates a table of unique hospitals each year. In earlier
 years, we again do not always observe hospital NPIs. We find that
 information in three steps:</p>
-<ul>
+<ol style="list-style-type: lower-alpha">
 <li>look within the inpatient claims (for the same year) to find NPI and
 Provider Number matches;</li>
 <li>match NPIs from the PRVDR_NPI NBER crosswalk files; and</li>
 <li>match to observed NPI in the NPPES files. Hospital zip codes are
 taken from the POS files in earlier years where NPPES historical data
 are not available.</li>
-</ul></li>
+</ol></li>
 <li><p><a href="data-code/4_BeneData.sas">Beneficiary Data</a>. Creates
-table of basic beneficiary demographics.</p></li>
+dataset of basic beneficiary demographics.</p></li>
 <li><p><a href="data-code/5_PhysicianChoiceSet.sas">Physician Admitting
 Priviledges</a>. This code file creates a table of unique physicians and
 the set of hospitals to which the physician is observed to have operated
@@ -382,51 +382,51 @@ probability of practice acquisition. This instrument has since been
 supplanted with the more direct instrument in the paper – the predicted
 revenue increase due to the change in facility fees for an integrated
 versus non-integrated practice.</p></li>
-<li><p><a href="data-code/6_PatientChoiceSet.SAS">Patient Choice Set for
+<li><p><a href="data-code/6_PatientChoiceSet.sas">Patient Choice Set for
 Hospitals</a>. In prior versions of the paper, we constructed an
 instrument based on the differential distance of the patient to
 physician practices and hospitals, and we used that information as part
 of a patient-level discrete choice model. The most recent version of the
 paper does not use this information, but we provide the code for
 completeness nonetheless.</p></li>
-<li><p><a href="data-code/7_TotalInpatient.SAS">Total Beneficiary
+<li><p><a href="data-code/7_TotalInpatient.sas">Total Beneficiary
 Spending</a>. This code file began as an accumulation of all inpatient
 stays for each patient. It then expanded to include all inpatient and
 outpatient stays. The data are used to construct quantiles of patient
 utilization, which we employ in the empirical analysis as patient-level
-control variables.</p></li>
-<li><p><a href="data-code/8_OtherIPCare.SAS">Other Inpatient Stays</a>.
+covariates.</p></li>
+<li><p><a href="data-code/8_OtherIPCare.sas">Other Inpatient Stays</a>.
 This file collects all inpatient claims and spending for a patient
 incurred after the initial inpatient stay that started a given episode.
 We don’t explicitly measure “episodes” at this point in the code…this is
 simply the inpatient stays that will ultimately go into the episode
 calculations.</p></li>
-<li><p><a href="data-code/9_OutpatientStays.SAS">Outpatient Visits</a>.
+<li><p><a href="data-code/9_OutpatientStays.sas">Outpatient Visits</a>.
 This file collects all the outpatient stays. Similar to the code for
 other inpatient stays, these data will eventually be used to calculate
 the outpatient claims relevant for each episode.</p></li>
-<li><p><a href="data-code/10_OutpatientMatched.SAS">Matched Outpatient
+<li><p><a href="data-code/10_OutpatientMatched.sas">Matched Outpatient
 Visits</a>. This code file began as a specific calculation of outpatient
 claims assigned to the same physician-hospital pair as the initial
 inpatient stay. We no longer use these data in the paper.</p></li>
-<li><p><a href="data-code/11_MedparData.SAS">MedPar Data</a>. This code
+<li><p><a href="data-code/11_MedparData.sas">MedPar Data</a>. This code
 file was originally used to identify charges for specific revenue
 centers. We no longer use these data in the paper.</p></li>
-<li><p><a href="data-code/12_PatientChoiceSet_Physician.SAS">Patient
+<li><p><a href="data-code/12_PatientChoiceSet_Physician.sas">Patient
 Choice Sets for Physicians</a>. We experimented with estimating a
 patient choice model for specialist, and this code file constructs a
 dataset to do that analysis. This is incomplete and was never used in
 the paper.</p></li>
-<li><p><a href="data-code/13_Carrier.SAS">Carrier Claims</a>. This code
+<li><p><a href="data-code/13_Carrier.sas">Carrier Claims</a>. This code
 file pulls all of the professional services claims from the carrier
 files for the patients identified in the original inpatient stays data.
 These data are used to construct the “professional services” component
 of the episodes.</p></li>
-<li><p><a href="data-code/14_OutcomeData.SAS">Outcome Data</a>. This
+<li><p><a href="data-code/14_OutcomeData.sas">Outcome Data</a>. This
 code file identifies readmissions, mortality, and complications during
 or after the initial inpatient stays. We use these data for our quality
 measures in the supplemental analysis of the paper.</p></li>
-<li><p><a href="data-code/15_ReferralAssignment.SAS">Physician
+<li><p><a href="data-code/15_ReferralAssignment.sas">Physician
 Referrals</a>. This code file identifies the primary care physician
 associated with each inpatient stay (where available). We used these
 data as an exploratory analysis of whether vertical integration changes
@@ -441,7 +441,7 @@ This analysis was not ultimately in the final paper.</p></li>
 data wrangling in Stata as follows:</p>
 <ol style="list-style-type: decimal">
 <li><p><a href="data-code/PhysicianHospital_Data.do">Physician Hospital
-Pairs</a> This file identifies all physician/hospital pairs and
+Pairs</a>. This file identifies all physician/hospital pairs and
 incorporates additional information about the physician practices and
 hospitals. The resulting dataset is at the physician/hospital/year level
 and includes our main independent variable of interest (i.e., an
@@ -451,43 +451,43 @@ physician/hospital pairs:</p>
 <ol style="list-style-type: lower-alpha">
 <li><p><a
 href="data-code/PH1_PhysicianHospitalIntegration.do">Integration
-Data</a> This file matches physicians to hospitals based on observed
-claims data and information on ownership status from SK&amp;A.
-<strong>old version - to be updated</strong></p></li>
-<li><p><a href="data-code/PH2_HCRIS_Data.do">HCRIS Data</a> Construct
+Data</a>. Match physicians to hospitals based on observed claims data
+and information on ownership status from SK&amp;A.</p></li>
+<li><p><a href="data-code/PH2_HCRIS_Data.do">HCRIS Data</a>. Construct
 hospital-level variables from cost reports. These data were created
 locally and then exported into the VRDC for use in this project. Please
 see the HCRIS GitHub repository <a
 href="https://github.com/imccart/HCRIS">here</a> for more details on the
 creation of the hospital-level HCRIS data.</p></li>
 <li><p><a href="data-code/PH3_Inpatient_PPS_Data.do">Inpatient PPS Final
-Rule</a> Collect data on hospital case mix and other variables from the
+Rule</a>. Collect data on hospital case mix and other variables from the
 inpatient prospective payment system final rule files. These data were
 downloaded locally directly from CMS (publicly available) and then
 uploaded into the VRDC for use in this project.</p></li>
-<li><p><a href="data-code/PH4-AHA_Data.do">AHA Data</a> Collect data on
+<li><p><a href="data-code/PH4-AHA_Data.do">AHA Data</a>. Collect data on
 hospital characteristics from the AHA annual surveys. These data are
 private but available for purchase from the AHA. The data were uploaded
 directly into the VRDC for use in this project.</p></li>
-<li><p><a href="data-code/PH5_ACS_Data.do">ACS Data</a> Collect
+<li><p><a href="data-code/PH5_ACS_Data.do">ACS Data</a>. Collect
 county-level information (education, income, employment) from the
 American Community Survey. These data were created locally and uploaded
 into the VRDC for use in this project.</p></li>
-<li><p><a href="data-code/PH6_SAS_Hospitals.do">VRDC Hospital Data</a>
+<li><p><a href="data-code/PH6_SAS_Hospitals.do">VRDC Hospital Data</a>.
 Collect hospital information based on observed claims data. The main
 purpose of this file is to identify a set of unique hospital NPIs based
 on inpatient stays from the VRDC claims data.</p></li>
-<li><p><a href="data-code/PH7_PFP_Data.do">Pay for Performance Data</a>
+<li><p><a href="data-code/PH7_PFP_Data.do">Pay for Performance Data</a>.
 Collect indicators for whether hospitals participated in certain pay for
-performance programs. These data come from the MEDPAR files.</p></li>
+performance programs. The underlying data for this information come from
+the MEDPAR files.</p></li>
 </ol></li>
-<li><p><a href="data-code/_Spending_Data.do">Episode Spending</a> Form
+<li><p><a href="data-code/_Spending_Data.do">Episode Spending</a>. Form
 total spending and indicators for discharge status for each
 episode.</p></li>
-<li><p><a href="data-code/_Quality_Data.do">Episode Quality</a>
+<li><p><a href="data-code/_Quality_Data.do">Episode Quality</a>.
 Construct indicators for readmission, mortality, and complications for
 each episode.</p></li>
-<li><p><a href="data-code/_Referral_Data.do">Referral Data</a>
+<li><p><a href="data-code/_Referral_Data.do">Referral Data</a>.
 Decomposition of claims within an episode based on whether the billing
 physician is part of the same practice, some other integrated practice
 with the same hospital, or some other non-integrated practice. This
@@ -495,12 +495,16 @@ information is used to measure whether newly acquired physicians are
 more likely to send patients to other practices owned by the same
 hospital.</p></li>
 <li><p><a href="data-code/_Instruments_Data.do">Instrumental
-Variables</a> Construct our instrument following Dranove and Ody (2019).
-This file includes data that was created locally and imported for
-analysis within the VRDC. See the GitHub repository <a
+Variables</a>. Construct our instrument following Dranove and Ody
+(2019). This file includes data that was created locally and imported
+for analysis within the VRDC. See the GitHub repository <a
 href="https://github.com/imccart/PFS_Update_2010">here</a> for more
 details on the creation of these data and replication of Dranove and Ody
 (2019).</p></li>
+<li><p><a href="data-code/_Efford_Data.do">Total Billable Activity</a>.
+Construct aggregate measures of annual physician billable activity.
+These data are used to quantify “physician effort” in the
+paper.</p></li>
 </ol>
 </div>
 

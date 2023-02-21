@@ -321,12 +321,6 @@ forvalues t=2008(1)2015 {
 	save temp_ska_`t', replace
 }
 
-/*
-** compare versions of SKA
-use temp_ska_2008, clear
-browse physician_npi SKA_Hospital_Name SKA_System_Name SKA_System_Name_v1 surg surg_v1 multi multi_v1 size size_v1 indy_prac indy_prac_v1
-*/
-
 ***********************************
 ** raw AHA data
 forvalues t=2008(1)2015 {
