@@ -22,7 +22,7 @@ The data for our paper comes from several sources, the first three of which are 
 ## Initial Claims Data
 Our central dataset is the Medicare claims data. We access these data through the VRDC and are subsequently limited to the software programs available in that environment (namely, SAS and Stata at the time we started this project). Below is a list and brief description of the SAS code files used to create our final claims dataset.
 
-1. [Inpatient Stays](data-code/1_InpatientStays.SAS). This code file creates a table of all inpatient stays in a given year, excluding hospital transfers and admissions initiated in the ED. The goal is to focus only on "planned" admissions or elective surgeries.
+1. [Inpatient Stays](data-code/1_InpatientStays.sas). This code file creates a table of all inpatient stays in a given year, excluding hospital transfers and admissions initiated in the ED. The goal is to focus only on "planned" admissions or elective surgeries.
 
 2. [Physician Data](data-code/2_PhysicianData.SAS). This code file creates a table of unique physicians each year. Since our analysis focuses on episodes initiated by a planned and elective inpatient stay, we restrict this set of physicians to those observed as the operating physician in the inpatient stay files. In earlier years, we do not always observe physician NPIs. We find that information in three steps:
   1. look within inpatient claims (for the same year) to find physician NPI and UPIN
