@@ -30,15 +30,15 @@ Our central dataset is the Medicare claims data. We access these data through th
     - match NPIs from UPIN_NPI NBER crosswalk files; and 
     - match to first observed NPI in the NPPES files (for which historical versions are not available until 2010). Physician zip codes, tax ids, and specialties are taken from the carrier claims files when available, and otherwise from the NPPES files. Although the analysis relies more on the SK&A data for physician practice characteristics.
 
-3. [Hospital Data](data-code/3_HospitalData.SAS). This code file creates a table of unique hospitals each year. In earlier years, we again do not always observe hospital NPIs. We find that information in three steps:
+3. [Hospital Data](data-code/3_HospitalData.sas). This code file creates a table of unique hospitals each year. In earlier years, we again do not always observe hospital NPIs. We find that information in three steps:
 
     - look within the inpatient claims (for the same year) to find NPI and Provider Number matches; 
     - match NPIs from the PRVDR_NPI NBER crosswalk files; and 
     - match to observed NPI in the NPPES files. Hospital zip codes are taken from the POS files in earlier years where NPPES historical data are not available.
 
-4. [Beneficiary Data](data-code/4_BeneData.SAS). Creates table of basic beneficiary demographics.
+4. [Beneficiary Data](data-code/4_BeneData.sas). Creates table of basic beneficiary demographics.
 
-5. [Physician Admitting Priviledges](data-code/5_PhysicianChoiceSet.SAS). This code file creates a table of unique physicians and the set of hospitals to  which the physician is observed to have operated in that year, along with other variables describing the physician's practice, specialty, and location, and similarly the hospital's location and aggregate utilization. We ultimately combine this across all years to form the set of all hospitals in which a physician is observed to operate over our panel. In prior versions of the paper, we used this information to construct an instrument based on the predicted probability of practice acquisition. This instrument has since been supplanted with the more direct instrument in the paper -- the predicted revenue increase due to the change in facility fees for an integrated versus non-integrated practice.
+5. [Physician Admitting Priviledges](data-code/5_PhysicianChoiceSet.sas). This code file creates a table of unique physicians and the set of hospitals to  which the physician is observed to have operated in that year, along with other variables describing the physician's practice, specialty, and location, and similarly the hospital's location and aggregate utilization. We ultimately combine this across all years to form the set of all hospitals in which a physician is observed to operate over our panel. In prior versions of the paper, we used this information to construct an instrument based on the predicted probability of practice acquisition. This instrument has since been supplanted with the more direct instrument in the paper -- the predicted revenue increase due to the change in facility fees for an integrated versus non-integrated practice.
 
 6. [Patient Choice Set for Hospitals](data-code/6_PatientChoiceSet.SAS). In prior versions of the paper, we constructed an instrument based on the differential distance of the patient to physician practices and hospitals, and we used that information as part of a patient-level discrete choice model. The most recent version of the paper does not use this information, but we provide the code for completeness nonetheless.
 

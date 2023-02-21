@@ -338,33 +338,38 @@ This code file creates a table of all inpatient stays in a given year,
 excluding hospital transfers and admissions initiated in the ED. The
 goal is to focus only on “planned” admissions or elective
 surgeries.</p></li>
-<li><p><a href="data-code/2_PhysicianData.SAS">Physician Data</a>. This
+<li><p><a href="data-code/2_PhysicianData.sas">Physician Data</a>. This
 code file creates a table of unique physicians each year. Since our
 analysis focuses on episodes initiated by a planned and elective
 inpatient stay, we restrict this set of physicians to those observed as
 the operating physician in the inpatient stay files. In earlier years,
 we do not always observe physician NPIs. We find that information in
-three steps:</p></li>
-<li><p>look within inpatient claims (for the same year) to find
-physician NPI and UPIN matches; 2. match NPIs from UPIN_NPI NBER
-crosswalk files; and 3. match to first observed NPI in the NPPES files
-(for which historical versions are not available until 2010). Physician
-zip codes, tax ids, and specialties are taken from the carrier claims
-files when available, and otherwise from the NPPES files. Although the
-analysis relies more on the SK&amp;A data for physician practice
-characteristics.</p></li>
-<li><p><a href="data-code/3_HospitalData.SAS">Hospital Data</a>. This
+three steps:</p>
+<ul>
+<li>look within inpatient claims (for the same year) to find physician
+NPI and UPIN matches;</li>
+<li>match NPIs from UPIN_NPI NBER crosswalk files; and</li>
+<li>match to first observed NPI in the NPPES files (for which historical
+versions are not available until 2010). Physician zip codes, tax ids,
+and specialties are taken from the carrier claims files when available,
+and otherwise from the NPPES files. Although the analysis relies more on
+the SK&amp;A data for physician practice characteristics.</li>
+</ul></li>
+<li><p><a href="data-code/3_HospitalData.sas">Hospital Data</a>. This
 code file creates a table of unique hospitals each year. In earlier
 years, we again do not always observe hospital NPIs. We find that
-information in three steps:</p></li>
-<li><p>look within the inpatient claims (for the same year) to find NPI
-and Provider Number matches; 2. match NPIs from the PRVDR_NPI NBER
-crosswalk files; and 3. match to observed NPI in the NPPES files.
-Hospital zip codes are taken from the POS files in earlier years where
-NPPES historical data are not available.</p></li>
-<li><p><a href="data-code/4_BeneData.SAS">Beneficiary Data</a>. Creates
+information in three steps:</p>
+<ul>
+<li>look within the inpatient claims (for the same year) to find NPI and
+Provider Number matches;</li>
+<li>match NPIs from the PRVDR_NPI NBER crosswalk files; and</li>
+<li>match to observed NPI in the NPPES files. Hospital zip codes are
+taken from the POS files in earlier years where NPPES historical data
+are not available.</li>
+</ul></li>
+<li><p><a href="data-code/4_BeneData.sas">Beneficiary Data</a>. Creates
 table of basic beneficiary demographics.</p></li>
-<li><p><a href="data-code/5_PhysicianChoiceSet.SAS">Physician Admitting
+<li><p><a href="data-code/5_PhysicianChoiceSet.sas">Physician Admitting
 Priviledges</a>. This code file creates a table of unique physicians and
 the set of hospitals to which the physician is observed to have operated
 in that year, along with other variables describing the physician’s
