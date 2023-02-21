@@ -20,3 +20,4 @@ output:
     theme: flatly
     include:
       after_body: html/footer.html
+      
