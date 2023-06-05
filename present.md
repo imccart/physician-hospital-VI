@@ -4,19 +4,19 @@ We've presented several different versions of this paper over the past few years
 
 **2018**
 
-- [Emory University, Economics Lunch and Learn](presentations/emory-lunchandlearn-2018/McCarthy Physician VI Slides.pdf)
-- [Emory University, Rollins School of Public Health](presentations/emory-rollins-2018/McCarthy Physician VI Slides.pdf)
+- [Emory University, Economics Lunch and Learn](presentations/emory-lunchandlearn-2018/McCarthy-Physician-VI-Slides.pdf)
+- [Emory University, Rollins School of Public Health](presentations/emory-rollins-2018/McCarthy-Physician-VI-Slides.pdf)
 - [John's Hopkins University](presentations/jhu-2018/JHU_Slides_169.pdf)
-- [George Washington University](presentations/gwu-2018/McCarthy Physician VI Slides.pdf)
-- [University of Nevada, Las Vegas](presentations/unlv-2018/McCarthy Physician VI Slides.pdf)
+- [George Washington University](presentations/gwu-2018/McCarthy-Physician-VI-Slides.pdf)
+- [University of Nevada, Las Vegas](presentations/unlv-2018/McCarthy-Physician-VI-Slides.pdf)
 
 **2019**
 
-- [Indiana University/Purdue University](presentations/iupui-2019/McCarthy Physician VI Slides.pdf)
-- [Indiana University](presentations/iu-2019/McCarthy Physician VI Slides.pdf)
-- [West Virginia University](presentations/wvu-2019/McCarthy Physician VI Slides.pdf)
-- [Southeastern Health Economics Study Group](presentations/shesg-2019/McCarthy Physician VI Slides.pdf)
+- [Indiana University/Purdue University](presentations/iupui-2019/McCarthy-Physician-VI-Slides.pdf)
+- [Indiana University](presentations/iu-2019/McCarthy-Physician-VI-Slides.pdf)
+- [West Virginia University](presentations/wvu-2019/McCarthy-Physician-VI-Slides.pdf)
+- [Southeastern Health Economics Study Group](presentations/shesg-2019/McCarthy-Physician-VI-Slides.pdf)
 
 **2020**
 
-- [American Economic Association](presentations/aea-2020/McCarthy Physician VI Slides.pdf)
+- [American Economic Association](presentations/aea-2020/McCarthy-Physician-VI-Slides.pdf)
