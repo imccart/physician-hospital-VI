@@ -1,6 +1,4 @@
----
-title: "Data"
----
+# Data
 
 The data for our paper comes from several sources, the first three of which are proprietary:
 

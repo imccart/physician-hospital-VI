@@ -1,6 +1,6 @@
 # Replication files for "Owning the Agent: Hospital Influence on Physician Behaviors"
 
-This repo organizes the necessary data and code files to replicate results for our paper, "Owning the Agent: Hospital Influence on Physician Behaviors". This project was supported in-part by grant number R000HS022431 from the Agency for Healthcare Research and Quality. Access all the supplemental materials, including all presentations of this work, [here](https://physician-hospital-vi.research.ianmccarthyecon.com).
+This repo organizes the necessary data and code files to replicate results for our paper, "Owning the Agent: Hospital Influence on Physician Behaviors". This project was supported in-part by grant number R000HS022431 from the Agency for Healthcare Research and Quality. Details on the dataset construction are available [here](data.md), details of the analysis are available [here](analysis.md), and links to presentations are available [here](present.md).
 
 
 

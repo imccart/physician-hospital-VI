@@ -1,6 +1,4 @@
----
-title: "Analysis"
----
+# Analysis
 
 Our primary analysis is contained in the [Analysis_Individual](analysis/_Analysis_Individual.do) Stata do file.
 
