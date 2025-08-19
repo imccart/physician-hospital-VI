@@ -23,16 +23,16 @@ This document outlines the step-by-step process used to construct the analytic d
 
 The SAS scripts process raw CMS claims data and related administrative files to extract core components of the analytic dataset:
 
-* **[1\_InpatientStays.sas](sas/1_InpatientStays.sas)**: Processes raw inpatient claims to identify index admissions for episode construction. Applies filters to identify qualifying inpatient stays within a defined window and applies logic to identify the initial hospitalization per episode.
-* **[2\_AllIPStays.sas](sas/2_AllIPStays.sas)**: Constructs a comprehensive inpatient file for each beneficiary by merging inpatient claims over time. This dataset is used to evaluate total inpatient use (e.g., for spending and utilization outcomes).
-* **[3\_OutpatientStays.sas](sas/3_OutpatientStays.sas)**: Extracts and cleans outpatient claims from the outpatient SAF. Aggregates line-level data to the claim level, flags relevant claim types, and formats for later episode linkage.
-* **[4\_PhysicianData.sas](sas/4_PhysicianData.sas)**: Prepares physician identifiers using both NPPES and historical UPIN mappings ([NPPES\_Data.sas](sas/NPPES_Data.sas), [UPIN2NPI\_Data.sas](sas/UPIN2NPI_Data.sas)). Outputs a cleaned file linking physicians across years using consistent NPIs.
-* **[5\_HospitalData.sas](sas/5_HospitalData.sas)**: Extracts hospital characteristics from CMS Provider of Services files. Includes information on ownership, teaching status, and bed size.
-* **[6\_BeneData.sas](sas/6_BeneData.sas)**: Compiles patient demographics and enrollment status by year, including age, sex, race, and Medicaid dual-eligibility. Used to define patient covariates and sampling.
-* **[7\_MedparData.sas](sas/7_MedparData.sas)**: Processes MedPAR claims for completeness but is not used in the construction of the final analytic files. Included here to document the full scope of claims processing.
-* **[8\_Episodes.sas](sas/8_Episodes.sas)**: Constructs care episodes from inpatient and outpatient claims using a logic-based window around index admissions. Each episode represents a defined period of care surrounding a hospitalization.
-* **[9\_OutcomeData.sas](sas/9_OutcomeData.sas)**: Attaches quality outcomes to each episode, including 30-day mortality, 30-day readmission, and indicators of inpatient complications.
-* **[10\_PhysicianHospitalSet.sas](sas/10_PhysicianHospitalSet.sas)**: Assigns each episode to a physician-hospital pair based on evaluation and management (E\&M) claim history. Uses hierarchical rules to identify the primary provider and facility.
+* **[1\_InpatientStays.sas](data-code/1_InpatientStays.sas)**: Processes raw inpatient claims to identify index admissions for episode construction. Applies filters to identify qualifying inpatient stays within a defined window and applies logic to identify the initial hospitalization per episode.
+* **[2\_AllIPStays.sas](data-code/2_AllIPStays.sas)**: Constructs a comprehensive inpatient file for each beneficiary by merging inpatient claims over time. This dataset is used to evaluate total inpatient use (e.g., for spending and utilization outcomes).
+* **[3\_OutpatientStays.sas](data-code/3_OutpatientStays.sas)**: Extracts and cleans outpatient claims from the outpatient SAF. Aggregates line-level data to the claim level, flags relevant claim types, and formats for later episode linkage.
+* **[4\_PhysicianData.sas](data-code/4_PhysicianData.sas)**: Prepares physician identifiers using both NPPES and historical UPIN mappings ([NPPES\_Data.sas](data-code/NPPES_Data.sas), [UPIN2NPI\_Data.sas](data-code/UPIN2NPI_Data.sas)). Outputs a cleaned file linking physicians across years using consistent NPIs.
+* **[5\_HospitalData.sas](data-code/5_HospitalData.sas)**: Extracts hospital characteristics from CMS Provider of Services files. Includes information on ownership, teaching status, and bed size.
+* **[6\_BeneData.sas](data-code/6_BeneData.sas)**: Compiles patient demographics and enrollment status by year, including age, sex, race, and Medicaid dual-eligibility. Used to define patient covariates and sampling.
+* **[7\_MedparData.sas](data-code/7_MedparData.sas)**: Processes MedPAR claims for completeness but is not used in the construction of the final analytic files. Included here to document the full scope of claims processing.
+* **[8\_Episodes.sas](data-code/8_Episodes.sas)**: Constructs care episodes from inpatient and outpatient claims using a logic-based window around index admissions. Each episode represents a defined period of care surrounding a hospitalization.
+* **[9\_OutcomeData.sas](data-code/9_OutcomeData.sas)**: Attaches quality outcomes to each episode, including 30-day mortality, 30-day readmission, and indicators of inpatient complications.
+* **[10\_PhysicianHospitalSet.sas](data-code/10_PhysicianHospitalSet.sas)**: Assigns each episode to a physician-hospital pair based on evaluation and management (E\&M) claim history. Uses hierarchical rules to identify the primary provider and facility.
 
 ## Stage 2: Integration and Final Dataset Construction (Stata)
 
@@ -40,14 +40,12 @@ The SAS scripts process raw CMS claims data and related administrative files to 
 
 These scripts incorporate data from external (non-claims) sources:
 
-* **[PH1\_PhysicianHospitalIntegration.do](code/PH1_PhysicianHospitalIntegration.do)**: Constructs a binary indicator for whether a physician is vertically integrated with a hospital in each year. Uses hospital billing patterns and claim affiliations to define integration.
-* **[PH2\_HCRIS\_Data.do](code/PH2_HCRIS_Data.do)**: Processes hospital cost report data from HCRIS. Merges staffing and ownership variables to hospitals using Medicare provider numbers.
-* **[PH3\_Inpatient\_PPS\_Data.do](code/PH3_Inpatient_PPS_Data.do)**: Merges inpatient prospective payment system (IPPS) data to derive price-adjusted DRG weights. These are later used to adjust or stratify spending analyses.
-* **[PH4\_AHA\_Data.do](code/PH4_AHA_Data.do)**: Processes AHA annual survey data to supplement hospital characteristics, including system affiliation and specialty services.
-* **[PH5\_ACS\_Data.do](code/PH5_ACS_Data.do)**: Merges American Community Survey (ACS) county-level demographics. Constructs annual county-level controls (e.g., age, education, race, income).
-* **[PH6\_SAS\_Hospitals.do](code/PH6_SAS_Hospitals.do)**: Integrates hospital data extracted in SAS into Stata for downstream merging.
-
-> **Note**: [PH7\_PFP\_Data.do](code/PH7_PFP_Data.do) was not clearly linked to downstream construction and is not included here. Please review separately.
+* **[PH1\_PhysicianHospitalIntegration.do](data-code/PH1_PhysicianHospitalIntegration.do)**: Constructs a binary indicator for whether a physician is vertically integrated with a hospital in each year. Uses hospital billing patterns and claim affiliations to define integration.
+* **[PH2\_HCRIS\_Data.do](data-code/PH2_HCRIS_Data.do)**: Processes hospital cost report data from HCRIS. Merges staffing and ownership variables to hospitals using Medicare provider numbers.
+* **[PH3\_Inpatient\_PPS\_Data.do](data-code/PH3_Inpatient_PPS_Data.do)**: Merges inpatient prospective payment system (IPPS) data to derive price-adjusted DRG weights. These are later used to adjust or stratify spending analyses.
+* **[PH4\_AHA\_Data.do](data-code/PH4_AHA_Data.do)**: Processes AHA annual survey data to supplement hospital characteristics, including system affiliation and specialty services.
+* **[PH5\_ACS\_Data.do](data-code/PH5_ACS_Data.do)**: Merges American Community Survey (ACS) county-level demographics. Constructs annual county-level controls (e.g., age, education, race, income).
+* **[PH6\_SAS\_Hospitals.do](data-code/PH6_SAS_Hospitals.do)**: Integrates hospital data extracted in SAS into Stata for downstream merging.
 
 ### Construction of Analytic Components
 
