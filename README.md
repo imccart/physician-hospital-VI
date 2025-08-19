@@ -9,17 +9,17 @@ Associate Professor • Department of Economics • Emory University<br>
 Research Associate • National Bureau of Economic Research<br>
 [Personal Website](https://www.ianmccarthyecon.com) • [\@ianhealthecon](https://twitter.com/ianhealthecon)
 
-**Haizhen Lin**
+**Haizhen Lin**<br>
 Professor • Kelley School of Business • Indiana University<br>
 Research Associate • National Bureau of Economic Research<br>
 [Personal Website](https://www.haizhen-lin.com/)
 
-**Michael Richards**
+**Michael Richards**<br>
 Professor • Jeb E. Brooks School of Public Policy • Cornell University<br>
 Research Associate • National Bureau of Economic Research<br>
 [Personal Website](https://michaelrichards.yourwebsitespace.com/)
 
-**Christopher Whely**
+**Christopher Whely**<br>
 Associate Professor • Department of Health Services, Policy and Practice • Brown University<br>
 [Personal Website](https://vivo.brown.edu/display/cmwhaley)
 
