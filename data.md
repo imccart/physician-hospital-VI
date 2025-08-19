@@ -30,7 +30,7 @@ The SAS scripts process raw CMS claims data and related administrative files to 
 * **[5\_HospitalData.sas](data-code/5_HospitalData.sas)**: Extracts hospital characteristics from CMS Provider of Services files. Includes information on ownership, teaching status, and bed size.
 * **[6\_BeneData.sas](data-code/6_BeneData.sas)**: Compiles patient demographics and enrollment status by year, including age, sex, race, and Medicaid dual-eligibility. Used to define patient covariates and sampling.
 * **[7\_MedparData.sas](data-code/7_MedparData.sas)**: Processes MedPAR claims for completeness but is not used in the construction of the final analytic files. Included here to document the full scope of claims processing.
-* **[8\_Episodes.sas](data-code/8_Episodes.sas)**: Constructs care episodes from inpatient and outpatient claims using a logic-based window around index admissions. Each episode represents a defined period of care surrounding a hospitalization.
+* **[8\_Episodes.sas](data-code/8_Episodes.sas)**: Constructs care episodes from inpatient and outpatient claims using a logic-based window around index inpatient admissions. Each episode therefore represents a defined period of care surrounding a hospitalization.
 * **[9\_OutcomeData.sas](data-code/9_OutcomeData.sas)**: Attaches quality outcomes to each episode, including 30-day mortality, 30-day readmission, and indicators of inpatient complications.
 
 ## Stage 2: Integration and Final Dataset Construction (Stata)
@@ -50,7 +50,7 @@ These scripts incorporate data from external (non-claims) sources:
 
 * **[\_Spending\_Data.do](analysis/_Spending_Data.do)**: Merges claims data and constructs primary outcome variables: total spending, Medicare payments, and utilization. Applies top- and bottom-coding at 1st and 99th percentiles, and constructs log-transformed versions for regression analysis.
 * **[\_Quality\_Data.do](analysis/_Quality_Data.do)**: Merges episode-level quality outcomes (mortality, readmission, complications) and creates flags for each. Ensures quality measures are consistently defined across DRGs.
-* **[\_Effort\_Data.do](analysis/_Effort_Data.do)**: Calculates physician effort using claims-based counts of services. Effort is normalized by patient volume and specialty.
+* **[\_Effort\_Data.do](analysis/_Effort_Data.do)**: Calculates various proxies for "physician effort" using claims-based counts of services, RVUs, and other measures.
 * **[\_Referral\_Data.do](analysis/_Referral_Data.do)**: Constructs referral-based measures of physician connectedness and market share, based on shared patient networks.
 * **[\_Instruments\_Data.do](analysis/_Instruments_Data.do)**: Links PFS-derived revenue measures for constructing instruments related to integration incentives. Includes both individual physician and aggregate group-level metrics.
 * **[\_PhysicianHospital\_Data.do](analysis/_PhysicianHospital_Data.do)**: Finalizes the physician-hospital analytic dataset by merging in spending, quality, physician, and hospital variables. Performs data integrity checks and creates flags for complete cases.
