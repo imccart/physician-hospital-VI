@@ -32,7 +32,6 @@ The SAS scripts process raw CMS claims data and related administrative files to 
 * **[7\_MedparData.sas](data-code/7_MedparData.sas)**: Processes MedPAR claims for completeness but is not used in the construction of the final analytic files. Included here to document the full scope of claims processing.
 * **[8\_Episodes.sas](data-code/8_Episodes.sas)**: Constructs care episodes from inpatient and outpatient claims using a logic-based window around index admissions. Each episode represents a defined period of care surrounding a hospitalization.
 * **[9\_OutcomeData.sas](data-code/9_OutcomeData.sas)**: Attaches quality outcomes to each episode, including 30-day mortality, 30-day readmission, and indicators of inpatient complications.
-* **[10\_PhysicianHospitalSet.sas](data-code/10_PhysicianHospitalSet.sas)**: Assigns each episode to a physician-hospital pair based on evaluation and management (E\&M) claim history. Uses hierarchical rules to identify the primary provider and facility.
 
 ## Stage 2: Integration and Final Dataset Construction (Stata)
 
@@ -56,7 +55,7 @@ These scripts incorporate data from external (non-claims) sources:
 * **[\_Instruments\_Data.do](analysis/_Instruments_Data.do)**: Links PFS-derived revenue measures for constructing instruments related to integration incentives. Includes both individual physician and aggregate group-level metrics.
 * **[\_PhysicianHospital\_Data.do](analysis/_PhysicianHospital_Data.do)**: Finalizes the physician-hospital analytic dataset by merging in spending, quality, physician, and hospital variables. Performs data integrity checks and creates flags for complete cases.
 
-These components are merged and finalized in the master script `main.do`, which applies final imputations, constructs analysis flags, and saves the dataset as `FinalEpisodesData.dta`.
+These components are merged and finalized in the analysis script `main.do`, which applies final clean-up, constructs analysis flags, and saves the dataset as `FinalEpisodesData.dta`.
 
 ## Notes
 
@@ -64,7 +63,6 @@ These components are merged and finalized in the master script `main.do`, which 
 * Missing values are imputed using forward/backward fills or group-level means/maxima.
 * Outliers are handled through winsorization at the 1st and 99th percentiles.
 
-This markdown file provides a complete guide to replicating the data construction process for the analytic file used in the study.
 
 
 
