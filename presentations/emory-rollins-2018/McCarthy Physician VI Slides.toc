@@ -1,0 +1,5 @@
+\beamer@sectionintoc {1}{Background}{2}{0}{1}
+\beamer@sectionintoc {2}{Theoretical Framework}{12}{0}{2}
+\beamer@sectionintoc {3}{Data}{16}{0}{3}
+\beamer@sectionintoc {4}{Estimation of Match Values}{26}{0}{4}
+\beamer@sectionintoc {5}{Estimation of Institutional Influence}{35}{0}{5}
